@@ -17,17 +17,17 @@ config.js: Contains BASE_URL for backend API (e.g., http://10.0.2.2:5000).
 ## Setup Instructions
 
 ### Prequisites
-Node.js
-Expo CLI (npm install -g expo-cli)
-Andriod Studio (for emulator)
+Node.js \n
+Expo CLI (npm install -g expo-cli) \n
+Andriod Studio (for emulator) \n
 Backend server running (refer to backend README)
 
 ### Installation
-1. Navigate to project directory
+1. Navigate to project directory \n
 ```cd "your path"\Frontend\PennyWise```
-2. Install dependencies
+2. Install dependencies \n
 ```npm install```
-3. Start Expo Development Server
+3. Start Expo Development Server \n
 ```npx expo start -c```
 4. Open the Andriod emulator and press <a> to load the app.
 
@@ -38,5 +38,5 @@ Backend server running (refer to backend README)
 2. Home Page (Content Page)
 
 ## Known Issues
-1. TypeError: Invalid attempt to destructure non-iterable instance error in <App.js> (still fixing)
+1. TypeError: Invalid attempt to destructure non-iterable instance error in <App.js> (corrected using {} instead of [])
 2. Reverted to default fonts due to rendering issues
