@@ -15,21 +15,21 @@ const LoginScreen = ({navigation}) => {
     // Login handler
     const loginHandler = async () => {
       try {
-        console.log('Sending request to:', `${server_base_URL}/api/auth/login`, 'with data:', {email, password});
+        //console.log('Sending request to:', `${server_base_URL}/api/auth/login`, 'with data:', {email, password});
         // await res after sending a post req with email and pw to login api
         const serverResponse = await axios.post(
           `${server_base_URL}/api/auth/login`, 
           {email, password}
         );
-        console.log('Login Response:', serverResponse.data);
+        //console.log('Login Response:', serverResponse.data);
         // upon successful login, store JWT token on device
         await login(serverResponse.data.token);
         // nav to home page
         navigation.navigate("Home");
       } catch (err) {
-        console.log('Login error:', err);
+        //console.log('Login error:', err.response?.data?.msg);
         // preferred err msg to show, uses optional chaining which safely checks if the next value exists
-        setError(err.serverResponse?.data?.msg || 'Login Unsuccessful');
+        setError(err.response?.data?.msg || err.message || 'Login Unsuccessful');
       };
     }
 
