@@ -43,6 +43,7 @@ const HomeScreen = ({navigation}) => {
 
     const navigateToPage = (title) => {
         console.log(`Navigating to ${title} page; need to change to navigation.navigate(title) next`);
+        navigation.navigate(title);
     }
 
     return (
