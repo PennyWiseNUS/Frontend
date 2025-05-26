@@ -3,6 +3,7 @@ import {View, Button, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {AuthContext} from '../../../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BottomNavigation from '../../../components/bottomNavigation';
+import {jwtDecode} from 'jwt-decode'; // decode jwt tokan and extract email 
 
 const HomeScreen = ({navigation}) => {
     // to prevent rendering until context is available
@@ -28,6 +29,23 @@ const HomeScreen = ({navigation}) => {
     };
     //console.log("success");
 
+    // extracting username from email
+    let username = "Unknown Person";
+    if (token) {
+        try {
+            const decodeToken = jwtDecode(token);
+            const email = decodeToken.user?.email;
+            if (email) {
+                // do the splitting and assign to username
+                username = email.split('@')[0];
+            } else {
+                console.warn(`No email found in Token`);
+            } 
+        } catch (err) {
+            console.error(`Error decoding token: ${err.message}`);
+        }
+    }
+
     // creating the 3 by 3 grid 
     const contentItems = [
         {title: 'Add an Entry', icon: 'add', color: '#CF8A4E'},
@@ -51,7 +69,7 @@ const HomeScreen = ({navigation}) => {
             {/* Header */}
             <View style={styles.headercard}>
                 <Text style={styles.greeting}>Hello,</Text>
-                <Text style={styles.name}>Jack Tan</Text>
+                <Text style={styles.name}>{username}</Text>
                 <Text style={styles.title}>Welcome to PennyWise!</Text>
             </View>
 
