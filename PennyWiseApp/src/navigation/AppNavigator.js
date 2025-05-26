@@ -13,10 +13,10 @@ const Stack = createStackNavigator();
 // create a component for the navigator
 const AppNavigator = () => {
     const {token} = useContext(AuthContext)
-    //console.log('Login Screen:', LoginScreen);
+    console.log('Login Screen:', LoginScreen);
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
+            <Stack.Navigator initialRouteName="Home">
                 <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Register" component={RegisterScreen}/>
                 <Stack.Screen name="Home" component={HomeScreen}/>

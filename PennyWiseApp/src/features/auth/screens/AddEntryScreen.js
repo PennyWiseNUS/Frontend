@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -10,8 +10,12 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
+import {AuthContext} from '../../../context/AuthContext';
+import {server_base_URL} from '../../../config'; // get base url from config file for cleaner api calls
+import axios from 'axios';
 
 const AddEntryScreen = ({ navigation }) => {
+  const {token} = useContext(AuthContext)
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [type, setType] = useState('expense');
@@ -19,20 +23,50 @@ const AddEntryScreen = ({ navigation }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notes, setNotes] = useState('');
 
-  const handleSubmit = () => {
-    console.log({ amount, category, type, date, notes });
-    Alert.alert( 
-      'Entry Added',
-      `You have added a new ${type} entry:\n\n
-      Amount: $${amount}\n
-      Category: ${category}\n
-      Date: ${date}\n
-      Notes: ${notes}`,
-      [{ text: 'OK', 
-        onPress: () => { console.log('User pressed ok at AddEntryScreen');
-        navigation.goBack(); }
-       }],
-    )
+  const handleSubmit = async () => {
+    if (!token) {
+      Alert.alert('Error, No Authentication Token Availabl.e');
+      return;
+    }
+    if (!amount || !category || !type || !date) {
+      Alert.alert('Error, Please fill in all required fields.')
+    }
+    if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+      Alert.alert('Error, Please fill in a valid amount.')
+    }
+
+    console.log(token);
+    console.log('Request Config:', {
+      url: `${server_base_URL}/api/entries`,
+      data: { amount: parseFloat(amount), category, type, date, notes },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    try {
+      console.log("Posting to: ", `${server_base_URL}/api/entries`)
+      const addEntryResponse = await axios.post(
+        `${server_base_URL}/api/entries`,
+        {amount, category, type, date, notes},
+        {headers: {Authorization: `Bearer ${token}`}}
+      );
+      // after successfully 
+      console.log(`Entry Added:`, addEntryResponse.data);
+      Alert.alert( 
+        'Entry Added',
+        `You have added a new ${type} entry:\n\n
+        Amount: $${amount}\n
+        Category: ${category}\n
+        Date: ${date}\n
+        Notes: ${notes}`,
+        [{ text: 'OK', 
+          onPress: () => { console.log('User pressed ok at AddEntryScreen');
+          navigation.goBack(); }
+        }],
+      );
+    } catch (err) {
+      console.error('Error when saving entry:', err);
+      Alert.alert(`Error when saving entry, please try again.`)
+    }
   };
 
   return (

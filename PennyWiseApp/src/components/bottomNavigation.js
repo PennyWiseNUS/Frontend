@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -28,10 +28,10 @@ const BottomNavigation = ({navigation, currentTab}) => {
                     onPress={() => handleNavigation(item.route)}
                 >
                     <Icon name={item.icon} size={20} 
-                        color={currentTab == item.route ? '#2ECC71' : '#888'}/>
+                        color='#539468'/>
                     <Text style={[
                         styles.navigationText, 
-                        {color: currentTab == item.route ? '#2ECC71' : '#888'}
+                        {color: '#539468'}
                         ]}
                     >
                         {item.name}
@@ -43,7 +43,7 @@ const BottomNavigation = ({navigation, currentTab}) => {
 };
 
 const styles = StyleSheet.create({
-    bottomNav: {flexDirection:'row', justifyContent:'space-around', padding:10, backgroundColor:'#fff', borderTopWidth:1, bordorTopColor:'#ddd'},
+    bottomNav: {position: 'absolute', bottom:0, left:0, right:0, flexDirection:'row', justifyContent:'space-around', padding:10, backgroundColor:'#fff', borderTopWidth:1, borderTopColor:'#ddd'},
     navigationItems: {alignItems:'center', width:'30%'},
     navigationText: {fontSize:12}
 });

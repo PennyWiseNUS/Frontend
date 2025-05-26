@@ -47,7 +47,7 @@ const HomeScreen = ({navigation}) => {
     }
 
     return (
-        <View style={StyleSheet.container}>
+        <View style={styles.container}>
             {/* Header */}
             <View style={styles.headercard}>
                 <Text style={styles.greeting}>Hello,</Text>
@@ -77,14 +77,13 @@ const HomeScreen = ({navigation}) => {
                     </TouchableOpacity>
                 ))}
             </View>
-
             <BottomNavigation navigation={navigation} activeTab="Home" />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {flex: 1, justifyContent: 'center', padding: 20},
+    container: {flex: 1, justifyContent: 'center', padding: 20, paddingBottom:60},
     headercard: {backgroundColor:"#7DCB84", width: "100%", borderRadius:10, padding:20, marginBottom:10},
     greeting: {fontSize: 16, color:"white"},
     name: {fontSize: 30, color:"white", fontWeight: "bold"},
