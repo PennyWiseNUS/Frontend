@@ -27,6 +27,8 @@ Backend server running (refer to backend README)
 ```cd "your path"\Frontend\PennyWise```
 2. Install dependencies \n
 ```npm install```
+```npm install expo-secure-store```
+```npm install jwt-decode```
 3. Start Expo Development Server \n
 ```npx expo start -c```
 4. Open the Andriod emulator and press <a> to load the app.
@@ -36,6 +38,7 @@ Backend server running (refer to backend README)
     - Login: Allows users to log in with email and password
     - Register: Allows new users to register with email and password
 2. Home Page (Content Page)
+3. Adding an Income/Expense Entry (to be saved in mongoDB database)
 
 ## Known Issues
 1. TypeError: Invalid attempt to destructure non-iterable instance error in <App.js> (corrected using {} instead of [])
