@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useContext} from 'react';
-import {View, Button, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useEffect, useContext} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {AuthContext} from '../../../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BottomNavigation from '../../../components/bottomNavigation';
@@ -49,7 +49,7 @@ const HomeScreen = ({navigation}) => {
     // creating the 3 by 3 grid 
     const contentItems = [
         {title: 'Add an Entry', icon: 'add', color: '#CF8A4E'},
-        {title: 'Income & Savings', icon: 'savings', color: '#79B6E2'},
+        {title: 'Income and Savings', icon: 'savings', color: '#79B6E2'},
         {title: 'Expenses', icon:'monetization-on', color: '#81C288'},
         {title: 'Financial Goals', icon:'star', color: '#AA81C2'},
         {title: 'Budget Forecasting', icon:'date-range', color: '#F2EEAC'},

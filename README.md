@@ -17,9 +17,9 @@ config.js: Contains BASE_URL for backend API (e.g., http://10.0.2.2:5000).
 ## Setup Instructions
 
 ### Prequisites
-Node.js \n
-Expo CLI (npm install -g expo-cli) \n
-Andriod Studio (for emulator) \n
+Node.js
+Expo CLI (npm install -g expo-cli)
+Andriod Studio (for emulator)
 Backend server running (refer to backend README)
 
 ### Installation
@@ -29,6 +29,7 @@ Backend server running (refer to backend README)
 ```npm install```
 ```npm install expo-secure-store```
 ```npm install jwt-decode```
+```npm install react-native-chart-kit react-native-svg```
 3. Start Expo Development Server \n
 ```npx expo start -c```
 4. Open the Andriod emulator and press <a> to load the app.
