@@ -10,7 +10,7 @@ const RegisterScreen = ({navigation}) => {
 
     const registerHandler = async () => {
         try {
-            console.log('Sending Request to:', '${server_base_URL}/api/auth/register', 'with data:', {email, password})
+            console.log('Sending Request to:', `${server_base_URL}/api/auth/register`, 'with data:', JSON.stringify({email, password}))
             const serverResponse = await axios.post(`${server_base_URL}/api/auth/register`, {email, password});
             console.log('Register response:', serverResponse.data)
             // return an alert to let user know that their registration is successful and to re log in
