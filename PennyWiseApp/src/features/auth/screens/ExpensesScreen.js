@@ -16,7 +16,7 @@ const ExpensesScreen = ({navigation}) => {
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
     const [sortBy, setSortBy] = useState(null);
-    const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+    const [sortOrder, setSortOrder] = useState('asc');
 
 
     useEffect(() => {
@@ -69,7 +69,7 @@ const ExpensesScreen = ({navigation}) => {
     const renderExpenseItem = ({item}) => {
       return (   
           <View style={styles.transactionItem}>
-              <Text style={styles.listItems}>{item.category}</Text>
+              <Text style={styles.listItems}>{item.category.charAt(0).toUpperCase()+item.category.slice(1)}</Text>
               <Text style={styles.listItems}>${item.amount.toFixed(2)}</Text>
               <Text style={styles.listItems}>{new Date(item.date).toLocaleDateString()}</Text>
               <Text style={styles.listItems}>{item.notes || `NIL`}</Text>
