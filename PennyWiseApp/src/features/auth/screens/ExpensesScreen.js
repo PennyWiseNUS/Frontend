@@ -15,6 +15,9 @@ const ExpensesScreen = ({navigation}) => {
     const [error, setError] = useState('');
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
+    const [sortBy, setSortBy] = useState(null);
+    const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+
 
     useEffect(() => {
         extractExpenseData();
@@ -32,6 +35,32 @@ const ExpensesScreen = ({navigation}) => {
             console.log('Error fetching data: ', err);
             setError(err.message || 'Error with data fetching');
         };
+    };
+
+    const sortTransactions = (column) => {
+      let order=sortOrder;
+
+      if (sortBy === column) {
+          order = sortOrder === 'asc' ? 'desc' : 'asc';
+          setSortOrder(order);
+      } else {
+        setSortBy(column);
+        order = 'asc';
+        setSortOrder('asc');
+      }
+
+      const sortedData = [...expenseTransact].sort((a, b) => {
+          if (column === 'amount') {
+              return order === 'asc' ? a.amount - b.amount : b.amount - a.amount;
+          } else if (column === 'date') {
+              return order === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
+          } else if (column === 'category') {
+              return order === 'asc' ? a.category.localeCompare(b.category) : b.category.localeCompare(a.category);
+          } else {
+              return 0; // no sorting for notes
+          }
+      });
+      setExpenseTransact(sortedData);
     };
 
     const renderExpenseItem = ({item}) => {
@@ -56,9 +85,9 @@ const ExpensesScreen = ({navigation}) => {
         <Text style={styles.header}>Expenses Overview</Text>
         <Text style={styles.sectionTitle}>Monthly Expenses</Text>
         <View style={styles.tableHeader}>
-                <Text style={styles.listItems}>Category</Text>
-                <Text style={styles.listItems}>Amount</Text>
-                <Text style={styles.listItems}>Date</Text>
+                <Text style={styles.listItems} onPress={() => sortTransactions('category')}>Category</Text>
+                <Text style={styles.listItems} onPress={() => sortTransactions('amount')}>Amount</Text>
+                <Text style={styles.listItems} onPress={() => sortTransactions('date')}>Date</Text>
                 <Text style={styles.listItems}>Notes</Text>
             </View>
             <FlatList data={expenseTransact} renderItem={renderExpenseItem} keyExtractor={transact => transact._id} style={styles.transactionList}/>
