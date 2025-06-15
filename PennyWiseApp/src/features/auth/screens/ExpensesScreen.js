@@ -17,7 +17,9 @@ const ExpensesScreen = ({navigation}) => {
     const [sortBy, setSortBy] = useState(null);
     const [sortOrder, setSortOrder] = useState('asc');
     const screenWidth = Dimensions.get('window').width;
-    const screenHeight = Dimensions.get('window').height;
+    const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
+
+
 
 
     useEffect(() => {
@@ -29,7 +31,7 @@ const ExpensesScreen = ({navigation}) => {
             const res = await axios.get(`${server_base_URL}/api/expense`, {
                 headers: {Authorization: `Bearer ${token}`}
             });
-
+            
             const transactions = res.data.expenseTransactions;
             const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -89,18 +91,37 @@ const ExpensesScreen = ({navigation}) => {
       datasets: [{ data: totalMonthlyExpenses}],
     };
 
+    const selectedMonthLabel = shortenedLabels[selectedMonthIndex];
+
+    const filteredExpenses = selectedMonthLabel 
+    ? expenseTransact.filter(x => {
+      const month = new Date(x.date).toLocaleString('default', { month: 'short' });
+      const year = new Date(x.date).getFullYear().toString().slice(2);
+      return `${month} '${year}` === selectedMonthLabel;
+    })
+    : [];
 
     return (
       <View style={styles.container}>
         <Text style={styles.header}>Expenses Overview</Text>
-        <BarChart
-          data={chartData}
-          width={screenWidth - 40}
-          height={220}
-          fromZero
-          chartConfig={styles.chartConfig}
-          style={styles.chartContainer}
-        />
+          <BarChart
+            data={chartData}
+            width={screenWidth - 40}
+            height={220}
+            fromZero
+            chartConfig={styles.chartConfig}
+            style={styles.chartContainer}
+          />
+
+        <View style={[styles.chartOverlay, {top: 105}]}>
+          {chartData.labels.map((label, index) => (
+            <TouchableOpacity
+              key={index}
+              style={{ flex: 1, height: 220 }} // same height as chart
+              onPress={() => {console.log("pressed"); setSelectedMonthIndex(index)}}
+            />
+          ))}
+        </View>
         <Text style={styles.sectionTitle}>Monthly Expenses</Text>
         <View style={styles.tableHeader}>
                 <Text style={styles.listItems} onPress={() => sortTransactions('category')}>Category</Text>
@@ -108,7 +129,12 @@ const ExpensesScreen = ({navigation}) => {
                 <Text style={styles.listItems} onPress={() => sortTransactions('date')}>Date</Text>
                 <Text style={styles.listItems}>Notes</Text>
             </View>
-            <FlatList data={expenseTransact} renderItem={renderExpenseItem} keyExtractor={transact => transact._id} style={styles.transactionList}/>
+        <FlatList
+            data={selectedMonthIndex !== null ? filteredExpenses : expenseTransact}
+            renderItem={renderExpenseItem}
+            keyExtractor={transact => transact._id}
+            style={styles.transactionList}
+          />
             <BottomNavigation navigation={navigation} activeTab="Home"/>
       </View>
     );
@@ -130,12 +156,13 @@ const styles = StyleSheet.create({
         backgroundGradientTo: '#ffffff',
         color: (opacity = 1) => `rgba(0,122,255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
-        decimalPlaces: 2,
+        decimalPlaces:2,
         style: {borderRadius: 16},
         propsForBackgroundLines: {
           stroke: '#e3e3e3',
         },
-    }
+    },
+    chartOverlay: {position: 'absolute', left: 20, right: 20, flexDirection: 'row',}
   });
 
   export default ExpensesScreen;
