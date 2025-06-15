@@ -22,7 +22,7 @@ const ExpensesScreen = ({navigation}) => {
 
     const extractExpenseData = async () => {
         try {
-            const res = await axios.get(`${server_base_URL}/api/expenses`, {
+            const res = await axios.get(`${server_base_URL}/api/expense`, {
                 headers: {Authorization: `Bearer ${token}`}
             });
 
@@ -34,6 +34,17 @@ const ExpensesScreen = ({navigation}) => {
         };
     };
 
+    const renderExpenseItem = ({item}) => {
+      return (   
+          <View style={styles.transactionItem}>
+              <Text style={styles.listItems}>{item.category}</Text>
+              <Text style={styles.listItems}>${item.amount.toFixed(2)}</Text>
+              <Text style={styles.listItems}>{new Date(item.date).toLocaleDateString()}</Text>
+              <Text style={styles.listItems}>{item.notes || `NIL`}</Text>
+          </View> 
+      )
+    }
+
     const shortenedLabels = monthlyExpenses.map(item => item.month).map(label => {
         const [month, year] = label.split(' ');
         return `${month.slice(0,3)} '${year.slice(2)}`;
@@ -43,6 +54,15 @@ const ExpensesScreen = ({navigation}) => {
     return (
       <View style={styles.container}>
         <Text style={styles.header}>Expenses Overview</Text>
+        <Text style={styles.sectionTitle}>Monthly Expenses</Text>
+        <View style={styles.tableHeader}>
+                <Text style={styles.listItems}>Category</Text>
+                <Text style={styles.listItems}>Amount</Text>
+                <Text style={styles.listItems}>Date</Text>
+                <Text style={styles.listItems}>Notes</Text>
+            </View>
+            <FlatList data={expenseTransact} renderItem={renderExpenseItem} keyExtractor={transact => transact._id} style={styles.transactionList}/>
+            <BottomNavigation navigation={navigation} activeTab="Home"/>
       </View>
     );
   }
