@@ -1,5 +1,5 @@
 import React, {useEffect, useContext} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Alert, View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {AuthContext} from '../../../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BottomNavigation from '../../../components/bottomNavigation';
@@ -23,9 +23,15 @@ const HomeScreen = ({navigation}) => {
     //console.log("success");
     const {token, logout} = contextValue;
     //console.log(logout);
-    const LogoutHandler = async () => {
-        await logout();
-        navigation.navigate('Login');
+    const LogoutHandler = () => {
+        Alert.alert("Confirm logout", "Are you sure you want to logout?",
+            [{text:"Cancel", style: "cancel"}, {text: "Yes", style: "destructive", 
+                onPress: async () => {
+                    await logout;
+                    navigation.navigate('Login');
+                }}],
+                {cancelable: true}
+        );
     };
     //console.log("success");
 
@@ -73,6 +79,10 @@ const HomeScreen = ({navigation}) => {
                 <Text style={styles.title}>Welcome to PennyWise!</Text>
             </View>
 
+            <TouchableOpacity onPress={LogoutHandler} style={styles.logoutButton}>
+                <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+
             {/* Current Expense Tracker */}
             <View style={styles.expensecard}>
                 <Text style={styles.expenseheader}>Total Expenses</Text>
@@ -113,7 +123,9 @@ const styles = StyleSheet.create({
     grid: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', padding:10},
     iconcontainer: {justifyContent: 'center', alignItems: 'center', width:'50%', borderRadius:10},
     contentItem: {width: '30%', aspectRatio:1, borderRadius:10, alignItems:'center', margin:5},
-    contentitemtext: {fontSize: 14, color: '#000000', textAlign: 'center', marginTop:5}
+    contentitemtext: {fontSize: 14, color: '#000000', textAlign: 'center', marginTop:5},
+    logoutButton: {position: 'absolute', top: 10, right: 10, backgroundColor: '#FF6F61', padding: 10, borderRadius: 5},
+    logoutText: {color: '#FFFFFF', fontSize: 16, fontWeight: 'bold'},
 })
 
 export default HomeScreen;
