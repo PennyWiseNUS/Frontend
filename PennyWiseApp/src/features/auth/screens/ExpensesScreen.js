@@ -29,7 +29,10 @@ const ExpensesScreen = ({navigation}) => {
                 headers: {Authorization: `Bearer ${token}`}
             });
 
-            setExpenseTransact(res.data.expenseTransactions);
+            const transactions = res.data.expenseTransactions;
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            setExpenseTransact(sortedTransactions);
             setMonthlyExpenses(res.data.trackedMonthlyData);
         } catch (err) {
             console.log('Error fetching data: ', err);
