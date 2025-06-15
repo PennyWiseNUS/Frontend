@@ -3,6 +3,7 @@ import {AuthContext} from '../../../context/AuthContext';
 import axios from 'axios'; // http client for making api req
 import {View, Text, TouchableOpacity, FlatList, StyleSheet} from 'react-native';
 import {Dimensions} from 'react-native';
+import {BarChart} from 'react-native-chart-kit';
 import {server_base_URL} from '../../../config';
 import BottomNavigation from '../../../components/bottomNavigation';
 // import Chart from 'chart.js/auto';
@@ -13,10 +14,10 @@ const ExpensesScreen = ({navigation}) => {
     const [expenseTransact, setExpenseTransact] = useState([]);
     const [monthlyExpenses, setMonthlyExpenses] = useState([]);
     const [error, setError] = useState('');
-    const screenWidth = Dimensions.get('window').width;
-    const screenHeight = Dimensions.get('window').height;
     const [sortBy, setSortBy] = useState(null);
     const [sortOrder, setSortOrder] = useState('asc');
+    const screenWidth = Dimensions.get('window').width;
+    const screenHeight = Dimensions.get('window').height;
 
 
     useEffect(() => {
@@ -82,10 +83,24 @@ const ExpensesScreen = ({navigation}) => {
         return `${month.slice(0,3)} '${year.slice(2)}`;
     });
 
+    const totalMonthlyExpenses = monthlyExpenses.map(item => item.expense);
+    const chartData = {
+      labels: shortenedLabels,
+      datasets: [{ data: totalMonthlyExpenses}],
+    };
+
 
     return (
       <View style={styles.container}>
         <Text style={styles.header}>Expenses Overview</Text>
+        <BarChart
+          data={chartData}
+          width={screenWidth - 40}
+          height={220}
+          fromZero
+          chartConfig={styles.chartConfig}
+          style={styles.chartContainer}
+        />
         <Text style={styles.sectionTitle}>Monthly Expenses</Text>
         <View style={styles.tableHeader}>
                 <Text style={styles.listItems} onPress={() => sortTransactions('category')}>Category</Text>
@@ -108,6 +123,19 @@ const styles = StyleSheet.create({
     transactionItem: {flexDirection: 'row', padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},
     listItems: {width: '25%', textAlign: 'center'},
     tableHeader: {flexDirection: 'row', alignItems: 'center', padding:10, borderBottomWidth: 1, borderBottomColor: '#ddd'},
+    chartContainer: {marginBottom:16, borderRadius: 10, alignSelf: 'center'},
+    chartConfig: {
+        backgroundColor: '#ffffff',
+        backgroundGradientFrom: '#ffffff',
+        backgroundGradientTo: '#ffffff',
+        color: (opacity = 1) => `rgba(0,122,255, ${opacity})`,
+        labelColor: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
+        decimalPlaces: 2,
+        style: {borderRadius: 16},
+        propsForBackgroundLines: {
+          stroke: '#e3e3e3',
+        },
+    }
   });
 
   export default ExpensesScreen;
