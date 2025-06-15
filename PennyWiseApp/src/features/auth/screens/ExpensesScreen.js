@@ -6,6 +6,7 @@ import {Dimensions} from 'react-native';
 import {BarChart} from 'react-native-chart-kit';
 import {server_base_URL} from '../../../config';
 import BottomNavigation from '../../../components/bottomNavigation';
+
 // import Chart from 'chart.js/auto';
 
 const ExpensesScreen = ({navigation}) => {
@@ -18,8 +19,6 @@ const ExpensesScreen = ({navigation}) => {
     const [sortOrder, setSortOrder] = useState('asc');
     const screenWidth = Dimensions.get('window').width;
     const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
-
-
 
 
     useEffect(() => {
@@ -42,6 +41,26 @@ const ExpensesScreen = ({navigation}) => {
             setError(err.message || 'Error with data fetching');
         };
     };
+    const currentMonthShortLabel = () => {
+      const now = new Date();
+      const month = now.toLocaleString('default', { month: 'short' });
+      const year = now.getFullYear().toString().slice(2);
+      return `${month} '${year}`;
+    };
+
+    useEffect(() => {
+      if (monthlyExpenses.length > 0 && selectedMonthIndex === null) {
+        const labels = monthlyExpenses.map(item => {
+          const [month, year] = item.month.split(' ');
+          return `${month.slice(0,3)} '${year.slice(2)}`;
+        });
+        const currentLabel = currentMonthShortLabel();
+        const index = labels.findIndex(label => label === currentLabel);
+        if (index !== -1) {
+          setSelectedMonthIndex(index);
+        }
+      }
+    }, [monthlyExpenses]);
 
     const sortTransactions = (column) => {
       let order=sortOrder;
@@ -117,7 +136,7 @@ const ExpensesScreen = ({navigation}) => {
           {chartData.labels.map((label, index) => (
             <TouchableOpacity
               key={index}
-              style={{ flex: 1, height: 220 }} // same height as chart
+              style={styles.chartTouch} // same height as chart
               onPress={() => {console.log("pressed"); setSelectedMonthIndex(index)}}
             />
           ))}
@@ -162,7 +181,8 @@ const styles = StyleSheet.create({
           stroke: '#e3e3e3',
         },
     },
-    chartOverlay: {position: 'absolute', left: 20, right: 20, flexDirection: 'row',}
+    chartOverlay: {position: 'absolute', left: 20, right: 20, flexDirection: 'row',},
+    chartTouch: { flex: 1, height: 220},
   });
 
   export default ExpensesScreen;
