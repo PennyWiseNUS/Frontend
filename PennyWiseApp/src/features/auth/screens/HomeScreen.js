@@ -1,9 +1,12 @@
-import React, {useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {AuthContext} from '../../../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BottomNavigation from '../../../components/bottomNavigation';
 import {jwtDecode} from 'jwt-decode'; // decode jwt tokan and extract email 
+import axios from 'axios'; // http client for making api req
+import {server_base_URL} from '../../../config';
 
 const HomeScreen = ({navigation}) => {
     // to prevent rendering until context is available
@@ -64,6 +67,24 @@ const HomeScreen = ({navigation}) => {
         navigation.navigate(title);
     }
 
+    const [monthlyExpense, setMonthlyExpense] = useState({ total: 0, month: ''});
+    useFocusEffect(useCallback(() => {
+        const fetchTotalFromExpense = async () => {
+            try {
+                const res = await axios.get(`${server_base_URL}/api/expense`, {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+                const thisMonth = res.data.trackedMonthlyData.slice(-1)[0];
+                if (thisMonth) {
+                    setMonthlyExpense({total: thisMonth.expense, month: thisMonth.month});
+                }
+            } catch (err) {
+                console.error('Error fetching monthly expense:', err);
+            }
+        };
+        fetchTotalFromExpense();
+    }, [token]));
+
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -76,8 +97,8 @@ const HomeScreen = ({navigation}) => {
             {/* Current Expense Tracker */}
             <View style={styles.expensecard}>
                 <Text style={styles.expenseheader}>Total Expenses</Text>
-                <Text style={styles.expenseamt}>$245.20</Text>
-                <Text style={styles.expensemonth}>May 2025</Text>
+                <Text style={styles.expenseamt}>${monthlyExpense.total.toFixed(2)}</Text>
+                <Text style={styles.expensemonth}>{monthlyExpense.month}</Text>
             </View>
 
             {/* Content Page Grid*/}
