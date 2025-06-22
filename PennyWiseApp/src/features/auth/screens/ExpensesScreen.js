@@ -32,7 +32,7 @@ const ExpensesScreen = ({navigation}) => {
             });
             
             const transactions = res.data.expenseTransactions;
-            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.entryDate) - new Date(a.entryDate));
 
             setExpenseTransact(sortedTransactions);
             setMonthlyExpenses(res.data.trackedMonthlyData);
@@ -77,8 +77,8 @@ const ExpensesScreen = ({navigation}) => {
       const sortedData = [...expenseTransact].sort((a, b) => {
           if (column === 'amount') {
               return order === 'asc' ? a.amount - b.amount : b.amount - a.amount;
-          } else if (column === 'date') {
-              return order === 'asc' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
+          } else if (column === 'entryDate') {
+              return order === 'asc' ? new Date(a.entryDate) - new Date(b.entryDate) : new Date(b.entryDate) - new Date(a.entryDate);
           } else if (column === 'category') {
               return order === 'asc' ? a.category.localeCompare(b.category) : b.category.localeCompare(a.category);
           } else {
@@ -93,7 +93,7 @@ const ExpensesScreen = ({navigation}) => {
           <View style={styles.transactionItem}>
               <Text style={styles.listItems}>{item.category.charAt(0).toUpperCase()+item.category.slice(1)}</Text>
               <Text style={styles.listItems}>${item.amount.toFixed(2)}</Text>
-              <Text style={styles.listItems}>{new Date(item.date).toLocaleDateString()}</Text>
+              <Text style={styles.listItems}>{new Date(item.entryDate).toLocaleDateString()}</Text>
               <Text style={styles.listItems}>{item.notes || `NIL`}</Text>
           </View> 
       )
@@ -114,11 +114,12 @@ const ExpensesScreen = ({navigation}) => {
 
     const filteredExpenses = selectedMonthLabel 
     ? expenseTransact.filter(x => {
-      const month = new Date(x.date).toLocaleString('default', { month: 'short' });
-      const year = new Date(x.date).getFullYear().toString().slice(2);
+      const month = new Date(x.entryDate).toLocaleString('default', { month: 'short' });
+      const year = new Date(x.entryDate).getFullYear().toString().slice(2);
       return `${month} '${year}` === selectedMonthLabel;
     })
     : [];
+    console.log(expenseTransact);
 
     return (
       <View style={styles.container}>
@@ -137,7 +138,7 @@ const ExpensesScreen = ({navigation}) => {
             <TouchableOpacity
               key={index}
               style={styles.chartTouch} // same height as chart
-              onPress={() => {console.log("pressed"); setSelectedMonthIndex(index)}}
+              onPress={() => {console.log("pressed"); console.log(index); setSelectedMonthIndex(index)}}
             />
           ))}
         </View>
@@ -145,7 +146,7 @@ const ExpensesScreen = ({navigation}) => {
         <View style={styles.tableHeader}>
                 <Text style={styles.listItems} onPress={() => sortTransactions('category')}>Category</Text>
                 <Text style={styles.listItems} onPress={() => sortTransactions('amount')}>Amount</Text>
-                <Text style={styles.listItems} onPress={() => sortTransactions('date')}>Date</Text>
+                <Text style={styles.listItems} onPress={() => sortTransactions('entryDate')}>Date</Text>
                 <Text style={styles.listItems}>Notes</Text>
             </View>
         <FlatList

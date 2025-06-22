@@ -19,8 +19,9 @@ const AddEntryScreen = ({ navigation }) => {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [type, setType] = useState('expense');
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [entryDate, setEntryDate] = useState(new Date());
+  const [entryDatePicker, setEntryDatePicker] = useState(false);
+  const [endDatePicker, setEndDatePicker] = useState(false);
   const [notes, setNotes] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceFrequency, setRecurrenceFrequency] = useState('daily');
@@ -31,7 +32,7 @@ const AddEntryScreen = ({ navigation }) => {
       Alert.alert('Error, No Authentication Token Availabl.e');
       return;
     }
-    if (!amount || !category || !type || !date) {
+    if (!amount || !category || !type || !entryDate) {
       Alert.alert('Error, Please fill in all required fields.');
       return;
     }
@@ -43,7 +44,7 @@ const AddEntryScreen = ({ navigation }) => {
     console.log(token);
     console.log('Request Config:', {
       url: `${server_base_URL}/api/entries`,
-      data: { amount: parseFloat(amount), category, type, date, notes, isRecurring, recurrenceFrequency, recurrenceEndDate },
+      data: { amount: parseFloat(amount), category, type, entryDate, notes, isRecurring, recurrenceFrequency, recurrenceEndDate },
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -51,7 +52,7 @@ const AddEntryScreen = ({ navigation }) => {
       console.log("Posting to: ", `${server_base_URL}/api/entries`)
       const addEntryResponse = await axios.post(
         `${server_base_URL}/api/entries`,
-        {amount, category, type, date, notes, isRecurring, recurrenceFrequency, recurrenceEndDate},
+        {amount, category, type, entryDate, notes, isRecurring, recurrenceFrequency, recurrenceEndDate},
         {headers: {Authorization: `Bearer ${token}`}}
       );
       // after successfully 
@@ -61,7 +62,7 @@ const AddEntryScreen = ({ navigation }) => {
         `You have added a new ${type} entry:\n\n
         Amount: $${amount}\n
         Category: ${category}\n
-        Date: ${date}\n
+        Date: ${entryDate.toLocaleDateString()}\n
         Notes: ${notes}`,
         [{ text: 'OK', 
           onPress: () => { console.log('User pressed ok at AddEntryScreen');
@@ -133,21 +134,21 @@ const AddEntryScreen = ({ navigation }) => {
 
       <Text style={styles.label}>Date</Text>
       <TouchableOpacity
-        onPress={() => setShowDatePicker(true)}
+        onPress={() => setEntryDatePicker(true)}
         style={styles.input}
       >
-        <Text>{date.toLocaleDateString()}</Text>
+        <Text>{entryDate.toLocaleDateString()}</Text>
       </TouchableOpacity>
       
-      {showDatePicker && (
+      {entryDatePicker && (
         <DateTimePicker
-          value={date}
+          value={entryDate}
           mode="date"
           display="default"
           onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
+            setEntryDatePicker(false);
             if (selectedDate) {
-              setDate(selectedDate);
+              setEntryDate(selectedDate);
             }
           }
         }
@@ -173,7 +174,7 @@ const AddEntryScreen = ({ navigation }) => {
           <View style={[styles.sliderKnob, isRecurring && styles.sliderKnobOn]}/>
         </Pressable>
       </View>
-      
+
         {isRecurring && (
         <>
           <Text style={styles.label}>Recurrence Interval</Text>
@@ -189,18 +190,18 @@ const AddEntryScreen = ({ navigation }) => {
           </Picker>
           <Text style={styles.label}>End Date</Text>
           <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => setEndDatePicker(true)}
             style={styles.input}
           >
             <Text>{recurrenceEndDate.toLocaleDateString()}</Text>
           </TouchableOpacity>
-          {showDatePicker && (
+          {endDatePicker && (
             <DateTimePicker
               value={recurrenceEndDate}
               mode="date"
               display="default"
               onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
+                setEndDatePicker(false);
                 if (selectedDate) {
                   setRecurrenceEndDate(selectedDate);
                 }
