@@ -22,6 +22,9 @@ const AddEntryScreen = ({ navigation }) => {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notes, setNotes] = useState('');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState('daily');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
 
   const handleSubmit = async () => {
     if (!token) {
@@ -29,16 +32,18 @@ const AddEntryScreen = ({ navigation }) => {
       return;
     }
     if (!amount || !category || !type || !date) {
-      Alert.alert('Error, Please fill in all required fields.')
+      Alert.alert('Error, Please fill in all required fields.');
+      return;
     }
     if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-      Alert.alert('Error, Please fill in a valid amount.')
+      Alert.alert('Error, Please fill in a valid amount.');
+      return;
     }
 
     console.log(token);
     console.log('Request Config:', {
       url: `${server_base_URL}/api/entries`,
-      data: { amount: parseFloat(amount), category, type, date, notes },
+      data: { amount: parseFloat(amount), category, type, date, notes, isRecurring, recurrenceFrequency, recurrenceEndDate },
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -46,7 +51,7 @@ const AddEntryScreen = ({ navigation }) => {
       console.log("Posting to: ", `${server_base_URL}/api/entries`)
       const addEntryResponse = await axios.post(
         `${server_base_URL}/api/entries`,
-        {amount, category, type, date, notes},
+        {amount, category, type, date, notes, isRecurring, recurrenceFrequency, recurrenceEndDate},
         {headers: {Authorization: `Bearer ${token}`}}
       );
       // after successfully 
@@ -158,6 +163,53 @@ const AddEntryScreen = ({ navigation }) => {
         multiline
       />
 
+      { /* Recurring Entry Toggle */}
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Recurring Entry?</Text>
+        <Pressable
+          style={[styles.slider, isRecurring && styles.sliderOn]}
+          onPress={() => setIsRecurring(!isRecurring)}
+        >
+          <View style={[styles.sliderKnob, isRecurring && styles.sliderKnobOn]}/>
+        </Pressable>
+      </View>
+      
+        {isRecurring && (
+        <>
+          <Text style={styles.label}>Recurrence Interval</Text>
+          <Picker
+            selectedValue={recurrenceFrequency}
+            onValueChange={(itemValue) => setRecurrenceFrequency(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Daily" value="Daily" />
+            <Picker.Item label="Monthly" value="Monthly" />
+            <Picker.Item label="Weekly" value="Weekly" />
+            <Picker.Item label="Annually" value="Annually" />
+          </Picker>
+          <Text style={styles.label}>End Date</Text>
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={styles.input}
+          >
+            <Text>{recurrenceEndDate.toLocaleDateString()}</Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={recurrenceEndDate}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) {
+                  setRecurrenceEndDate(selectedDate);
+                }
+              }}
+            />
+          )}
+        </>
+      )}
+
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Save Entry</Text>
       </TouchableOpacity>
@@ -226,6 +278,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  toggleSwitch: {
+    width: 40,
+    height: 20,
+    borderRadius: 15,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    padding: 2,
+    position: 'relative',
+  },
+  toggleSwitchOn: {
+    backgroundColor: '#4E9FCF',
+    justifyContent: 'flex-end',
+  },
+  slider: {
+    width: 60,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
+    marginLeft: 10, 
+    position: 'relative',
+  },
+
+  sliderOn: {
+    backgroundColor: '#4E9FCF', 
+  },
+
+  sliderKnob: {
+    width: 26,
+    height: 26,
+    borderRadius: 13, 
+    backgroundColor: '#fff',
+    position: 'absolute',
+    left: 2, 
+    top: 2,  
+  },
+
+  sliderKnobOn: {
+    left: 32, 
+  },
+
 });
 
 
