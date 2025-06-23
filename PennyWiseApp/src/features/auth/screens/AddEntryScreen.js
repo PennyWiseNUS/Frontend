@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Pressable,
   Alert,
+  FlatList
 } from 'react-native';
 import {AuthContext} from '../../../context/AuthContext';
 import {server_base_URL} from '../../../config'; // get base url from config file for cleaner api calls
@@ -22,6 +23,35 @@ const AddEntryScreen = ({ navigation }) => {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notes, setNotes] = useState('');
+  const [interestRate, setInterestRate] = useState('');
+  const [repaymentDate, setRepaymentDate] = useState(new Date());
+  const [showRepaymentDatePicker, setShowRepaymentDatePicker] = useState(false);
+  const [repaidAmount, setRepaidAmount] = useState(0);
+  const [selectedLoanID, setSelectedLoanID] = useState(null);
+  const [loanList, setLoanList] = useState([]);
+
+  // get the current unpaid loans using useEffect
+  useEffect(() => {
+    const getLoanList = async () => {
+      try {
+        // console.log('start');
+        const listRes = await axios.get(`${server_base_URL}/api/loanEntries`,
+          {headers: {Authorization: `Bearer ${token}`}}
+        );
+        console.log('done');
+        const currentLoans = listRes.data.filter(
+          loan => parseFloat(loan.amount) > loan.repaidAmount
+        );
+        setLoanList(currentLoans);
+      } catch (err) {
+        console.error('Error in getting loans: ', err)
+      }
+    };
+
+    if (category === "loan" && type === "expense") {
+      getLoanList();
+    }
+  }, [category, type]);
 
   const handleSubmit = async () => {
     if (!token) {
@@ -49,6 +79,32 @@ const AddEntryScreen = ({ navigation }) => {
         {amount, category, type, date, notes},
         {headers: {Authorization: `Bearer ${token}`}}
       );
+
+      // post to second endpoint (only for loan entries)
+      if (category === "loan" && type === "income") {
+        const addLoanEntryResponse = await axios.post(
+          `${server_base_URL}/api/loanEntries`,
+          {notes, amount, interestRate, repaymentDate, repaidAmount, date},
+          {headers: {Authorization: `Bearer ${token}`}}
+        );
+        // added to loan entry successfully
+        console.log(`Loan Entry added: `, addLoanEntryResponse.data);
+      }
+      // post to second end point, loan repayment
+      if (category === "loan" && type === "expense") {
+        console.log('start of Loan Entry DB POST');
+        const loanToUpdate = loanList.find(loan => loan._id === selectedLoanID);
+        //console.log(loanToUpdate);
+        setSelectedLoanID(loanToUpdate._id);
+        //console.log(selectedLoanID);
+        const updateLoanEntryResponse = await axios.patch(
+          `${server_base_URL}/api/loanEntries/${selectedLoanID}`,
+          {amountToAdd: parseFloat(amount)},
+          {headers: {Authorization: `Bearer ${token}`}}
+        )
+        console.log('Loan Entry Successfully Posted to Loan Entry DB');
+      }
+
       // after successfully 
       console.log(`Entry Added:`, addEntryResponse.data);
       Alert.alert( 
@@ -100,9 +156,10 @@ const AddEntryScreen = ({ navigation }) => {
         <Picker.Item label="Education" value="education" />
         <Picker.Item label="Salary" value="salary" />
         <Picker.Item label="Investment" value="investment" />
+        <Picker.Item label="Loan" value="loan" />
         <Picker.Item label="Other" value="other" />
       </Picker>
-    </View>
+      </View>
 
       <Text style={styles.label}>Type</Text>
       <View style={styles.toggleContainer}>
@@ -126,6 +183,68 @@ const AddEntryScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
+      {/* setting conditional rendering for loan and debt tracker (Income)*/}
+      {(category === "loan" && type === "income") && (
+        <View>
+          <Text style={styles.label}>Interest Rate on Loan Taken</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            placeholder="e.g. 0.03 or 0.00"
+            value={interestRate}
+            onChangeText={setInterestRate}
+          />
+
+          <Text style={styles.label}>Repayment Date</Text>
+          <TouchableOpacity
+            onPress={() => setShowRepaymentDatePicker(true)}
+            style={styles.input}
+          >
+            <Text>{repaymentDate.toLocaleDateString()}</Text>
+          </TouchableOpacity>
+
+          {showRepaymentDatePicker && (
+            <DateTimePicker
+              value={repaymentDate}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowRepaymentDatePicker(false);
+                if (selectedDate) {
+                  setRepaymentDate(selectedDate);
+                }
+              }}
+            />
+          )}
+        </View>
+      )}
+
+      {/* setting conditional rendering for loan and debt tracker (Expense -> repayment)*/}
+      {(category === "loan" && type === "expense") && (
+        <View>
+          <Text style={styles.label}>Choose your loan to repay!</Text>
+          {loanList.length === 0 ? (
+            <Text styles={styles.noLoansText}>
+              You have cleared all your loans. Good Job!
+            </Text>
+          ) : (
+            <FlatList
+              data={loanList}
+              keyExtractor={(item) => item._id.toString()}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={[styles.loanItem, selectedLoanID === item._id && styles.selectedLoanItem]}
+                  onPress={() => setSelectedLoanID(item._id)}
+                >
+                  <Text style ={styles.loanText}>Loan Name: {item.notes}</Text>
+                  <Text style={styles.loanText}>Amount Repaid: {item.repaidAmount}/{item.amount}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
+        </View>
+      )}
+
       <Text style={styles.label}>Date</Text>
       <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
@@ -133,7 +252,7 @@ const AddEntryScreen = ({ navigation }) => {
       >
         <Text>{date.toLocaleDateString()}</Text>
       </TouchableOpacity>
-      
+
       {showDatePicker && (
         <DateTimePicker
           value={date}
@@ -152,7 +271,7 @@ const AddEntryScreen = ({ navigation }) => {
       <Text style={styles.label}>Notes</Text>
       <TextInput
         style={[styles.input, { height: 60 }]}
-        placeholder="Optional notes"
+        placeholder="Optional notes, Loan Name here for loans"
         value={notes}
         onChangeText={setNotes}
         multiline
@@ -176,7 +295,8 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: '600',
-    marginBottom: 30,
+    marginBottom: 10,
+    marginTop: 30,
     textAlign: 'center',
   },
   label: {
@@ -225,6 +345,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  selectedLoanItem: {
+    backgroundColor: '#5ba1c7',
   },
 });
 
