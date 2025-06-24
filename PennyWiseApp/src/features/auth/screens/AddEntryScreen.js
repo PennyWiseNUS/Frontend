@@ -30,6 +30,9 @@ const AddEntryScreen = ({ navigation }) => {
   const [repaidAmount, setRepaidAmount] = useState(0);
   const [selectedLoanID, setSelectedLoanID] = useState(null);
   const [loanList, setLoanList] = useState([]);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState('daily');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
 
   // get the current unpaid loans using useEffect
   useEffect(() => {
@@ -53,9 +56,6 @@ const AddEntryScreen = ({ navigation }) => {
       getLoanList();
     }
   }, [category, type]);
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [recurrenceFrequency, setRecurrenceFrequency] = useState('daily');
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
 
   const handleSubmit = async () => {
     if (!token) {
