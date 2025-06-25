@@ -16,10 +16,7 @@ const useLoanList = (token) => {
                     {headers: {Authorization: `Bearer ${token}`}}
                 );
                 console.log('done');
-                const currentLoans = listRes.data.filter(
-                    loan => parseFloat(loan.amount) > loan.repaidAmount
-                );
-                setLoanList(currentLoans);
+                setLoanList(listRes.data);
             } catch (err) {
                 console.error('Error in getting loans: ', err);
                 setError(err);

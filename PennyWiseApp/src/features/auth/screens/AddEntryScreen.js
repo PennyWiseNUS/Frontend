@@ -38,6 +38,12 @@ const AddEntryScreen = ({ navigation }) => {
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceFrequency, setRecurrenceFrequency] = useState('Daily');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
+  const currentLoans = loanList.filter(
+    loan => parseFloat(loan.amount) > loan.repaidAmount
+  );
+  const clearedLoans = loanList.filter(
+    loan => parseFloat(loan.amount) <= loan.repaidAmount
+  );
 
   // get the current unpaid loans using useEffect
   useEffect(() => {
@@ -236,7 +242,7 @@ const AddEntryScreen = ({ navigation }) => {
               <TouchableOpacity style={styles.input} onPress={() => setLoanPopupVisible(true)}>
                 <Text>
                   {selectedLoanID 
-                    ? loanList.find(loan => loan._id === selectedLoanID)?.notes
+                    ? currentLoans.find(loan => loan._id === selectedLoanID)?.notes
                     : "Choose a loan to repay"
                   }
                 </Text>
@@ -333,7 +339,7 @@ const AddEntryScreen = ({ navigation }) => {
         <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
           <Text style={styles.header}>Choose a loan to repay!</Text>
           <FlatList
-            data={loanList}
+            data={currentLoans}
             keyExtractor={(item) => item._id.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity

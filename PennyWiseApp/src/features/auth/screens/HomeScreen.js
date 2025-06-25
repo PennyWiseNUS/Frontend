@@ -57,7 +57,7 @@ const HomeScreen = ({navigation}) => {
         {title: 'Financial Goals', icon:'star', color: '#AA81C2'},
         {title: 'Budget Forecasting', icon:'date-range', color: '#F2EEAC'},
         {title: 'Financial Portfolios', icon:'trending-up', color: '#F0C5EB'},
-        {title: 'Support', icon:'support-agent', color: '#C5D1F0'},
+        {title: 'Loans', icon:'support-agent', color: '#C5D1F0'},
         {title: 'InfoPennyWise', icon:'info', color: '#D5F3EB'},
         {title: 'More', icon:'pending', color: '#F5D9A1'},
     ]

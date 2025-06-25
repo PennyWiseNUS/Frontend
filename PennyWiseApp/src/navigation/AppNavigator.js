@@ -7,7 +7,7 @@ import LoginScreen from '../features/auth/screens/LoginScreen';
 import HomeScreen from '../features/auth/screens/HomeScreen';
 import AddEntryScreen from '../features/auth/screens/AddEntryScreen';
 import IncomeSavingsScreen from '../features/auth/screens/IncomeSavingsScreen';
-import LoanRepaymentScreen from '../features/auth/screens/LoanRepaymentScreen';
+import LoanScreen from '../features/auth/screens/LoanScreen';
 import ExpensesScreen from '../features/auth/screens/ExpensesScreen';
 
 // initialise a stack nav obj (for def and config stack based transitions)
@@ -26,7 +26,7 @@ const AppNavigator = () => {
                 <Stack.Screen name="Add an Entry" component={AddEntryScreen}/>
                 <Stack.Screen name="Income and Savings" component={IncomeSavingsScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Expenses" component={ExpensesScreen} />
-                <Stack.Screen name="Loan Repayment" component={LoanRepaymentScreen}/>
+                <Stack.Screen name="Loans" component={LoanScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     );
