@@ -16,6 +16,7 @@ import {
 import {AuthContext} from '../../../context/AuthContext';
 import {server_base_URL} from '../../../config'; // get base url from config file for cleaner api calls
 import axios from 'axios';
+import useLoanList from '../../../hooks/useLoanList';
 
 const AddEntryScreen = ({ navigation }) => {
   const {token} = useContext(AuthContext)
@@ -32,29 +33,14 @@ const AddEntryScreen = ({ navigation }) => {
   const [repaidAmount, setRepaidAmount] = useState(0);
   const [selectedLoanID, setSelectedLoanID] = useState(null);
   const [loanPopupVisible, setLoanPopupVisible] = useState(false);
-  const [loanList, setLoanList] = useState([]);
+  //const [loanList, setLoanList] = useState([]);
+  const {loanList, getLoanList, loading} = useLoanList(token); // reused function to prevent continuous re-rendering
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceFrequency, setRecurrenceFrequency] = useState('Daily');
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
 
   // get the current unpaid loans using useEffect
   useEffect(() => {
-    const getLoanList = async () => {
-      try {
-        // console.log('start');
-        const listRes = await axios.get(`${server_base_URL}/api/loanEntries`,
-          {headers: {Authorization: `Bearer ${token}`}}
-        );
-        console.log('done');
-        const currentLoans = listRes.data.filter(
-          loan => parseFloat(loan.amount) > loan.repaidAmount
-        );
-        setLoanList(currentLoans);
-      } catch (err) {
-        console.error('Error in getting loans: ', err)
-      }
-    };
-
     if (category === "loan" && type === "expense") {
       getLoanList();
     }
