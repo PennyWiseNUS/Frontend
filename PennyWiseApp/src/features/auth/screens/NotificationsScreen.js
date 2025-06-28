@@ -3,21 +3,51 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react
 import {AuthContext} from '../../../context/AuthContext';
 import {server_base_URL} from '../../../config'; // get base url from config file for cleaner api calls
 import axios from 'axios';
-
+import BottomNavigation from '../../../components/bottomNavigation';
 
 const NotificationsScreen = ({navigation}) => {
     const {token} = useContext(AuthContext);
     
-    const [notifications, setNotifications] = useState([
-        { id: '1', title: 'Reminder', body: 'You have a new reminder', timestamp: '2025-06-19 08:55', read: false },
-        { id: '2', title: 'Update', body: 'Your profile has been updated', timestamp: '2025-06-18 14:30', read: true },
-        { id: '3', title: 'Message', body: 'You have a new message', timestamp: '2025-06-17 10:00', read: false },
-      ]);
+    const [notifications, setNotifications] = useState([]);
 
-    const markAsRead = (id) => {
-        setNotifications(notifications.map(notification => 
-          notification.id === id ? { ...notification, read: true } : notification
-        ));
+    useEffect(() => {
+        fetchNotifications();
+    }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            const response = await axios.get(`${server_base_URL}/api/notifications`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const sortedNotifications = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .map((notif) => ({
+              id: notif._id,
+              title: 'New Entry Created',
+              body: notif.message,
+              timestamp: new Date(notif.created_at).toLocaleString(),
+              read: notif.read
+            }));
+            setNotifications(sortedNotifications);
+          } catch (error) {
+            console.error('Error fetching notifications:', error);
+            Alert.alert('Error', 'Failed to fetch notifications');
+          }
+        };
+
+    const markAsRead = async (id) => {
+        try {
+          // await axios.put(`${server_base_URL}/api/notifications/${id}/read`, {}, {
+          //   headers: { Authorization: `Bearer ${token}` }
+          // });
+          setNotifications(notifications.map(notification => 
+            notification.id === id ? { ...notification, read: true } : notification
+          ));
+          // fetchNotifications();
+        } catch (error) {
+          console.error('Error marking notification as read:', error);
+          Alert.alert('Error', 'Failed to mark notification as read');
+        }
       };
     
     const deleteNotification = (id) => {
@@ -40,7 +70,7 @@ const NotificationsScreen = ({navigation}) => {
           </View>
           <View style={styles.actions}>
             {!item.read && (
-            <TouchableOpacity onPress={() => markAsRead(item.id)} style={styles.actionButton}>
+            <TouchableOpacity onPress={() => !item.read && markAsRead(item.id)} style={styles.actionButton}>
               <Text style={styles.actionText}>{item.read ? '' : 'Mark as Read'}</Text>
             </TouchableOpacity>
             )}
@@ -69,6 +99,7 @@ const NotificationsScreen = ({navigation}) => {
           {notifications.length === 0 && (
             <Text style={styles.emptyText}>No new notifications</Text>
           )}
+          <BottomNavigation navigation={navigation} activeTab="Home"/>
         </View>
       );
 }
