@@ -39,9 +39,11 @@ const NotificationsScreen = ({navigation}) => {
             <Text style={styles.timestamp}>{item.timestamp}</Text>
           </View>
           <View style={styles.actions}>
+            {!item.read && (
             <TouchableOpacity onPress={() => markAsRead(item.id)} style={styles.actionButton}>
-              <Text style={styles.actionText}>{item.read ? 'Read' : 'Mark as Read'}</Text>
+              <Text style={styles.actionText}>{item.read ? '' : 'Mark as Read'}</Text>
             </TouchableOpacity>
+            )}
             <TouchableOpacity onPress={() => deleteNotification(item.id)} style={styles.actionButton}>
               <Text style={styles.actionText}>Delete</Text>
             </TouchableOpacity>
