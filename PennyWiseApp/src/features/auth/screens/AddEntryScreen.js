@@ -303,8 +303,8 @@ const AddEntryScreen = ({ navigation }) => {
               style={styles.picker}
             >
               <Picker.Item label="Daily" value="Daily" />
-              <Picker.Item label="Monthly" value="Monthly" />
               <Picker.Item label="Weekly" value="Weekly" />
+              <Picker.Item label="Monthly" value="Monthly" />
               <Picker.Item label="Annually" value="Annually" />
             </Picker>
             <Text style={styles.label}>End Date</Text>
