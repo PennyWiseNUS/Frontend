@@ -89,12 +89,14 @@ const AddEntryScreen = ({ navigation }) => {
 
       // post to second endpoint (only for loan entries)
       if (category === "loan" && type === "income") {
+        const payload = {
+          amount, category, type, entryDate, notes, interestRate, repaymentDate, repaidAmount, isRecurring,
+          recurrenceFrequency: isRecurring ? recurrenceFrequency : null,
+          recurrenceEndDate: isRecurring ? recurrenceEndDate : null
+        };
         const addLoanEntryResponse = await axios.post(
           `${server_base_URL}/api/loanEntries`,
-          {notes, amount, interestRate, repaymentDate, repaidAmount, isRecurring,
-            recurrenceFrequency: isRecurring ? recurrenceFrequency : null,
-            recurrenceEndDate: isRecurring ? recurrenceEndDate : null
-          },
+          payload,
           {headers: {Authorization: `Bearer ${token}`}}
         );
         // added to loan entry successfully
@@ -109,7 +111,13 @@ const AddEntryScreen = ({ navigation }) => {
         //console.log(selectedLoanID);
         const updateLoanEntryResponse = await axios.patch(
           `${server_base_URL}/api/loanEntries/${selectedLoanID}`,
-          {amountToAdd: parseFloat(amount)},
+          {
+            amountToAdd: parseFloat(amount),
+            entryDate: new Date(loanToUpdate.entryDate),
+            isRecurring: loanToUpdate.isRecurring,
+            recurrenceFrequency: loanToUpdate.recurrenceFrequency,
+            recurrenceEndDate: loanToUpdate.recurrenceEndDate
+          },
           {headers: {Authorization: `Bearer ${token}`}}
         )
         console.log('Loan Entry Successfully Posted to Loan Entry DB');

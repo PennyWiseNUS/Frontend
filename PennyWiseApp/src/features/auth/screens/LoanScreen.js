@@ -20,7 +20,7 @@ const LoanScreen = ({navigation}) => {
     );
 
     const renderLoanItem = ({item}) => {
-        const {notes, amount, repaidAmount, repaymentDate, isRecurring, interestRate} = item;
+        const {notes, amount, repaidAmount, repaymentDate, isRecurring, interestRate, nextReminderDate} = item;
         const percentage = Math.min((repaidAmount/amount) * 100, 100).toFixed(1);
         return (
             <View style={styles.loanItem}>
@@ -40,7 +40,7 @@ const LoanScreen = ({navigation}) => {
                     {/*Column 1*/}
                     <View> 
                         <Text style={styles.details}>
-                            Next Payment: {isRecurring ? 'Placeholder Date' : 'NIL'}  
+                            Next Payment: {isRecurring ? new Date(nextReminderDate).toLocaleDateString() : 'NIL'}  
                         </Text>
                         <Text style={styles.details}>
                             Full Payment Due: {new Date(repaymentDate).toLocaleDateString()}  
