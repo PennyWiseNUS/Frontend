@@ -24,7 +24,7 @@ const AppNavigator = () => {
             <Stack.Navigator initialRouteName="Login">
                 <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Register" component={RegisterScreen}/>
-                <Stack.Screen name="Home" component={HomeScreen}/>
+                <Stack.Screen name="Home" component={HomeScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Add an Entry" component={AddEntryScreen}/>
                 <Stack.Screen name="Income and Savings" component={IncomeSavingsScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Expenses" component={ExpensesScreen} />

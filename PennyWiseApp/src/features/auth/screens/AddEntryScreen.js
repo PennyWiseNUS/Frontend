@@ -242,7 +242,9 @@ const AddEntryScreen = ({ navigation }) => {
         {(category === "loan" && type === "expense") && (
           <View>
             <Text style={styles.label}>Choose your loan to repay!</Text>
-            {loanList.length === 0 ? (
+            {loanList.filter(
+              loan => parseFloat(loan.amount) > loan.repaidAmount
+            ).length === 0 ? (
               <Text styles={styles.noLoansText}>
                 You have cleared all your loans. Good Job!
               </Text>

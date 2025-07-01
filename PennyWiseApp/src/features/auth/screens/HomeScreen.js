@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Alert, View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {AuthContext} from '../../../context/AuthContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -26,9 +26,15 @@ const HomeScreen = ({navigation}) => {
     //console.log("success");
     const {token, logout} = contextValue;
     //console.log(logout);
-    const LogoutHandler = async () => {
-        await logout();
-        navigation.navigate('Login');
+    const LogoutHandler = () => {
+        Alert.alert("Confirm logout", "Are you sure you want to logout?",
+            [{text:"Cancel", style: "cancel"}, {text: "Yes", style: "destructive", 
+                onPress: async () => {
+                    await logout;
+                    navigation.navigate('Login');
+                }}],
+                {cancelable: true}
+        );
     };
     //console.log("success");
 
@@ -89,9 +95,16 @@ const HomeScreen = ({navigation}) => {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.headercard}>
-                <Text style={styles.greeting}>Hello,</Text>
-                <Text style={styles.name}>{username}</Text>
-                <Text style={styles.title}>Welcome to PennyWise!</Text>
+                <View style={styles.textcard}>
+                    <Text style={styles.greeting}>Hello,</Text>
+                    <Text style={styles.name}>{username}</Text>
+                    <Text style={styles.title}>Welcome to PennyWise!</Text>
+                </View>
+                <View style={styles.buttoncontainer}>
+                    <TouchableOpacity onPress={LogoutHandler} style={styles.logoutButton}>
+                        <Text style={styles.logoutText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Current Expense Tracker */}
@@ -123,7 +136,9 @@ const HomeScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
     container: {flex: 1, justifyContent: 'center', padding: 20, paddingBottom:60},
-    headercard: {backgroundColor:"#7DCB84", width: "100%", borderRadius:10, padding:20, marginBottom:10},
+    headercard: {backgroundColor:"#7DCB84", width: "100%", borderRadius:10, padding:20, marginBottom:10, flexDirection:"row"},
+    textcard: {flex:7},
+    buttoncontainer: {flex:3},
     greeting: {fontSize: 16, color:"white"},
     name: {fontSize: 30, color:"white", fontWeight: "bold"},
     title: {fontSize: 16, textAlign: 'left', color:"white"},
@@ -134,7 +149,9 @@ const styles = StyleSheet.create({
     grid: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', padding:10},
     iconcontainer: {justifyContent: 'center', alignItems: 'center', width:'50%', borderRadius:10},
     contentItem: {width: '30%', aspectRatio:1, borderRadius:10, alignItems:'center', margin:5},
-    contentitemtext: {fontSize: 14, color: '#000000', textAlign: 'center', marginTop:5}
+    contentitemtext: {fontSize: 14, color: '#000000', textAlign: 'center', marginTop:5},
+    logoutButton: {backgroundColor: '#FF6F61', padding: 10, borderRadius: 5},
+    logoutText: {color: '#FFFFFF', fontSize: 16, fontWeight: 'bold', alignSelf: 'center'},
 })
 
 export default HomeScreen;
