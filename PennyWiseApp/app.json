@@ -4,12 +4,13 @@
     "slug": "PennyWiseApp",
     "version": "1.0.0",
     "extra": {
-      "server_API_URL": "${server_API_URL}"
+      "eas": {
+        "projectId": "44b76368-85da-49d7-b052-678e59b2872a"
+      }
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -32,6 +33,13 @@
     "plugins": [
       "expo-secure-store",
       "expo-font"
-    ]
+    ],
+    "owner": "woonkin14",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/44b76368-85da-49d7-b052-678e59b2872a"
+    }
   }
 }
