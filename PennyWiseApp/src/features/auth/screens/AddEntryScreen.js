@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
+  ScrollView,
   View,
   Text,
   TextInput,
@@ -9,46 +10,119 @@ import {
   StyleSheet,
   Pressable,
   Alert,
+  Modal,
+  FlatList,
 } from 'react-native';
 import {AuthContext} from '../../../context/AuthContext';
 import {server_base_URL} from '../../../config'; // get base url from config file for cleaner api calls
 import axios from 'axios';
+import useLoanList from '../../../hooks/useLoanList';
 
 const AddEntryScreen = ({ navigation }) => {
   const {token} = useContext(AuthContext)
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [type, setType] = useState('expense');
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [entryDate, setEntryDate] = useState(new Date());
+  const [entryDatePicker, setEntryDatePicker] = useState(false);
+  const [endDatePicker, setEndDatePicker] = useState(false);
   const [notes, setNotes] = useState('');
+  const [interestRate, setInterestRate] = useState('');
+  const [repaymentDate, setRepaymentDate] = useState(new Date());
+  const [showRepaymentDatePicker, setShowRepaymentDatePicker] = useState(false);
+  const [repaidAmount, setRepaidAmount] = useState(0);
+  const [selectedLoanID, setSelectedLoanID] = useState(null);
+  const [loanPopupVisible, setLoanPopupVisible] = useState(false);
+  //const [loanList, setLoanList] = useState([]);
+  const {loanList, getLoanList, loading} = useLoanList(token); // reused function to prevent continuous re-rendering
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState('Daily');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(new Date());
+  const currentLoans = loanList.filter(
+    loan => parseFloat(loan.amount) > loan.repaidAmount
+  );
+  const clearedLoans = loanList.filter(
+    loan => parseFloat(loan.amount) <= loan.repaidAmount
+  );
+
+  // get the current unpaid loans using useEffect
+  useEffect(() => {
+    if (category === "loan" && type === "expense") {
+      getLoanList();
+    }
+  }, [category, type]);
 
   const handleSubmit = async () => {
     if (!token) {
       Alert.alert('Error, No Authentication Token Availabl.e');
       return;
     }
-    if (!amount || !category || !type || !date) {
-      Alert.alert('Error, Please fill in all required fields.')
+    if (!amount || !category || !type || !entryDate) {
+      Alert.alert('Error, Please fill in all required fields.');
+      return;
     }
     if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-      Alert.alert('Error, Please fill in a valid amount.')
+      Alert.alert('Error, Please fill in a valid amount.');
+      return;
     }
 
     console.log(token);
     console.log('Request Config:', {
       url: `${server_base_URL}/api/entries`,
-      data: { amount: parseFloat(amount), category, type, date, notes },
+      data: { amount: parseFloat(amount), category, type, entryDate, notes, isRecurring, recurrenceFrequency, recurrenceEndDate },
       headers: { Authorization: `Bearer ${token}` },
     });
 
     try {
-      console.log("Posting to: ", `${server_base_URL}/api/entries`)
+      console.log("Posting to: ", `${server_base_URL}/api/entries`);
+      const payload = {
+        amount, category, type, entryDate, notes, isRecurring,
+        recurrenceFrequency: isRecurring ? recurrenceFrequency : null,
+        recurrenceEndDate: isRecurring ? recurrenceEndDate : null
+      };
       const addEntryResponse = await axios.post(
         `${server_base_URL}/api/entries`,
-        {amount, category, type, date, notes},
+        payload,
         {headers: {Authorization: `Bearer ${token}`}}
       );
+      console.log("Posting to Entries complete.")
+
+      // post to second endpoint (only for loan entries)
+      if (category === "loan" && type === "income") {
+        const payload = {
+          amount, category, type, entryDate, notes, interestRate, repaymentDate, repaidAmount, isRecurring,
+          recurrenceFrequency: isRecurring ? recurrenceFrequency : null,
+          recurrenceEndDate: isRecurring ? recurrenceEndDate : null
+        };
+        const addLoanEntryResponse = await axios.post(
+          `${server_base_URL}/api/loanEntries`,
+          payload,
+          {headers: {Authorization: `Bearer ${token}`}}
+        );
+        // added to loan entry successfully
+        console.log(`Loan Entry added: `, addLoanEntryResponse.data);
+      }
+      // post to second end point, loan repayment
+      if (category === "loan" && type === "expense") {
+        console.log('start of Loan Entry DB POST');
+        const loanToUpdate = loanList.find(loan => loan._id === selectedLoanID);
+        //console.log(loanToUpdate);
+        setSelectedLoanID(loanToUpdate._id);
+        //console.log(selectedLoanID);
+        const updateLoanEntryResponse = await axios.patch(
+          `${server_base_URL}/api/loanEntries/${selectedLoanID}`,
+          {
+            amountToAdd: parseFloat(amount),
+            entryDate: new Date(loanToUpdate.entryDate),
+            isRecurring: loanToUpdate.isRecurring,
+            recurrenceFrequency: loanToUpdate.recurrenceFrequency,
+            recurrenceEndDate: loanToUpdate.recurrenceEndDate
+          },
+          {headers: {Authorization: `Bearer ${token}`}}
+        )
+        console.log('Loan Entry Successfully Posted to Loan Entry DB');
+      }
+
       // after successfully 
       console.log(`Entry Added:`, addEntryResponse.data);
       Alert.alert( 
@@ -56,7 +130,7 @@ const AddEntryScreen = ({ navigation }) => {
         `You have added a new ${type} entry:\n\n
         Amount: $${amount}\n
         Category: ${category}\n
-        Date: ${date}\n
+        Date: ${entryDate.toLocaleDateString()}\n
         Notes: ${notes}`,
         [{ text: 'OK', 
           onPress: () => { console.log('User pressed ok at AddEntryScreen');
@@ -70,98 +144,241 @@ const AddEntryScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Add New Entry</Text>
+    <>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <Text style={styles.header}>Add New Entry</Text>
 
-      <Text style={styles.label}>Amount</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        placeholder="e.g. 50.00"
-        value={amount}
-        onChangeText={setAmount}
-      />
+        <Text style={styles.label}>Amount</Text>
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          placeholder="e.g. 50.00"
+          value={amount}
+          onChangeText={setAmount}
+        />
 
-      <Text style={styles.label}>Category</Text>
-      <View style={styles.pickerWrapper}>
-      <Picker
-        selectedValue={category}
-        onValueChange={(itemValue) => setCategory(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Select a category" value="" />
-        <Picker.Item label="Food" value="food" />
-        <Picker.Item label="Transport" value="transport" />
-        <Picker.Item label="Utilities" value="utilities" />
-        <Picker.Item label="Entertainment" value="entertainment" />
-        <Picker.Item label="Health" value="health" />
-        <Picker.Item label="Shopping" value="shopping" />
-        <Picker.Item label="Travel" value="travel" />
-        <Picker.Item label="Education" value="education" />
-        <Picker.Item label="Salary" value="salary" />
-        <Picker.Item label="Investment" value="investment" />
-        <Picker.Item label="Other" value="other" />
-      </Picker>
-    </View>
-
-      <Text style={styles.label}>Type</Text>
-      <View style={styles.toggleContainer}>
-        <Pressable
-          style={[
-            styles.toggleButton,
-            type === 'expense' && styles.activeButton,
-          ]}
-          onPress={() => setType('expense')}
+        <Text style={styles.label}>Category</Text>
+        <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={category}
+          onValueChange={(itemValue) => setCategory(itemValue)}
+          style={styles.picker}
         >
-          <Text style={styles.toggleText}>Expense</Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.toggleButton,
-            type === 'income' && styles.activeButton,
-          ]}
-          onPress={() => setType('income')}
-        >
-          <Text style={styles.toggleText}>Income</Text>
-        </Pressable>
-      </View>
+          <Picker.Item label="Select a category" value="" />
+          <Picker.Item label="Food" value="food" />
+          <Picker.Item label="Transport" value="transport" />
+          <Picker.Item label="Utilities" value="utilities" />
+          <Picker.Item label="Entertainment" value="entertainment" />
+          <Picker.Item label="Health" value="health" />
+          <Picker.Item label="Shopping" value="shopping" />
+          <Picker.Item label="Travel" value="travel" />
+          <Picker.Item label="Education" value="education" />
+          <Picker.Item label="Salary" value="salary" />
+          <Picker.Item label="Investment" value="investment" />
+          <Picker.Item label="Loan" value="loan" />
+          <Picker.Item label="Other" value="other" />
+        </Picker>
+        </View>
 
-      <Text style={styles.label}>Date</Text>
-      <TouchableOpacity
-        onPress={() => setShowDatePicker(true)}
-        style={styles.input}
-      >
-        <Text>{date.toLocaleDateString()}</Text>
-      </TouchableOpacity>
-      
-      {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) {
-              setDate(selectedDate);
+        <Text style={styles.label}>Type</Text>
+        <View style={styles.toggleContainer}>
+          <Pressable
+            style={[
+              styles.toggleButton,
+              type === 'expense' && styles.activeButton,
+            ]}
+            onPress={() => setType('expense')}
+          >
+            <Text style={styles.toggleText}>Expense</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.toggleButton,
+              type === 'income' && styles.activeButton,
+            ]}
+            onPress={() => setType('income')}
+          >
+            <Text style={styles.toggleText}>Income</Text>
+          </Pressable>
+        </View>
+
+        {/* setting conditional rendering for loan and debt tracker (Income)*/}
+        {(category === "loan" && type === "income") && (
+          <View>
+            <Text style={styles.label}>Interest Rate on Loan Taken</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="e.g. 0.03 or 0.00"
+              value={interestRate}
+              onChangeText={setInterestRate}
+            />
+
+            <Text style={styles.label}>Repayment Date</Text>
+            <TouchableOpacity
+              onPress={() => setShowRepaymentDatePicker(true)}
+              style={styles.input}
+            >
+              <Text>{repaymentDate.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+
+            {showRepaymentDatePicker && (
+              <DateTimePicker
+                value={repaymentDate}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowRepaymentDatePicker(false);
+                  if (selectedDate) {
+                    setRepaymentDate(selectedDate);
+                  }
+                }}
+              />
+            )}
+          </View>
+        )}
+
+        {/* setting conditional rendering for loan and debt tracker (Expense -> repayment)*/}
+        {(category === "loan" && type === "expense") && (
+          <View>
+            <Text style={styles.label}>Choose your loan to repay!</Text>
+            {loanList.filter(
+              loan => parseFloat(loan.amount) > loan.repaidAmount
+            ).length === 0 ? (
+              <Text styles={styles.noLoansText}>
+                You have cleared all your loans. Good Job!
+              </Text>
+            ) : (
+              <TouchableOpacity style={styles.input} onPress={() => setLoanPopupVisible(true)}>
+                <Text>
+                  {selectedLoanID 
+                    ? currentLoans.find(loan => loan._id === selectedLoanID)?.notes
+                    : "Choose a loan to repay"
+                  }
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        <Text style={styles.label}>Date</Text>
+        <TouchableOpacity
+          onPress={() => setEntryDatePicker(true)}
+          style={styles.input}
+        >
+          <Text>{entryDate.toLocaleDateString()}</Text>
+        </TouchableOpacity>
+        
+        {entryDatePicker && (
+          <DateTimePicker
+            value={entryDate}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setEntryDatePicker(false);
+              if (selectedDate) {
+                setEntryDate(selectedDate);
+              }
             }
           }
-        }
+          />
+        )}
+
+        <Text style={styles.label}>Notes</Text>
+        <TextInput
+          style={[styles.input, { height: 60 }]}
+          placeholder="Optional notes, Loan Name here for loans"
+          value={notes}
+          onChangeText={setNotes}
+          multiline
         />
-      )}
 
-      <Text style={styles.label}>Notes</Text>
-      <TextInput
-        style={[styles.input, { height: 60 }]}
-        placeholder="Optional notes"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-      />
+        { /* Recurring Entry Toggle */}
+        <View style={styles.toggleContainer}>
+          <Text style={styles.label}>Recurring Entry or Payment (Loans)?</Text>
+          <Pressable
+            style={[styles.slider, isRecurring && styles.sliderOn]}
+            onPress={() => setIsRecurring(!isRecurring)}
+          >
+            <View style={[styles.sliderKnob, isRecurring && styles.sliderKnobOn]}/>
+          </Pressable>
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Save Entry</Text>
-      </TouchableOpacity>
-    </View>
+          {isRecurring && (
+          <>
+            <Text style={styles.label}>Recurrence Interval</Text>
+            <Picker
+              selectedValue={recurrenceFrequency}
+              onValueChange={(itemValue) => setRecurrenceFrequency(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Daily" value="Daily" />
+              <Picker.Item label="Weekly" value="Weekly" />
+              <Picker.Item label="Monthly" value="Monthly" />
+              <Picker.Item label="Annually" value="Annually" />
+            </Picker>
+            <Text style={styles.label}>End Date</Text>
+            <TouchableOpacity
+              onPress={() => setEndDatePicker(true)}
+              style={styles.input}
+            >
+              <Text>{recurrenceEndDate.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+            {endDatePicker && (
+              <DateTimePicker
+                value={recurrenceEndDate}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setEndDatePicker(false);
+                  if (selectedDate) {
+                    setRecurrenceEndDate(selectedDate);
+                  }
+                }}
+              />
+            )}
+          </>
+        )}
+
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Save Entry</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <Modal visible={loanPopupVisible} animationType='slide' onRequestClose={() => setLoanPopupVisible(false)}>
+        <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
+          <Text style={styles.header}>Choose a loan to repay!</Text>
+          <FlatList
+            data={currentLoans}
+            keyExtractor={(item) => item._id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[
+                  styles.loanItem,
+                  selectedLoanID === item._id && styles.selectedLoanItem,
+                ]}
+                onPress={() => {
+                  setSelectedLoanID(item._id);
+                  setLoanPopupVisible(false);
+                }}
+              >
+                <Text style={styles.loanText}>Loan Name: {item.notes}</Text>
+                <Text style={styles.loanText}>
+                  Amount Repaid: {item.repaidAmount}/{item.amount}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+
+          <TouchableOpacity
+            style={[styles.button, { marginTop: 20 }]}
+            onPress={() => setLoanPopupVisible(false)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </>
   );
 };
 
@@ -171,12 +388,13 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: '#FFF',
-    flex: 1,
+    flexGrow: 1,
   },
   header: {
     fontSize: 24,
     fontWeight: '600',
-    marginBottom: 30,
+    marginBottom: 10,
+    marginTop: 30,
     textAlign: 'center',
   },
   label: {
@@ -226,6 +444,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  selectedLoanItem: {
+    backgroundColor: '#5ba1c7',
+  },
+  toggleSwitch: {
+    width: 40,
+    height: 20,
+    borderRadius: 15,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    padding: 2,
+    position: 'relative',
+  },
+  toggleSwitchOn: {
+    backgroundColor: '#4E9FCF',
+    justifyContent: 'flex-end',
+  },
+  slider: {
+    width: 60,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2,
+    marginLeft: 10, 
+    position: 'relative',
+  },
+
+  sliderOn: {
+    backgroundColor: '#4E9FCF', 
+  },
+
+  sliderKnob: {
+    width: 26,
+    height: 26,
+    borderRadius: 13, 
+    backgroundColor: '#fff',
+    position: 'absolute',
+    left: 2, 
+    top: 2,  
+  },
+
+  sliderKnobOn: {
+    left: 32, 
+  },
 });
-
-

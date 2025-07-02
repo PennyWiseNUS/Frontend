@@ -85,7 +85,7 @@ const IncomeSavingsScreen = ({navigation}) => {
             <View style={styles.transactionItem}>
                 <Text style={styles.listItems}>{item.category}</Text>
                 <Text style={styles.listItems}>${item.amount.toFixed(2)}</Text>
-                <Text style={styles.listItems}>{new Date(item.date).toLocaleDateString()}</Text>
+                <Text style={styles.listItems}>{new Date(item.entryDate).toLocaleDateString()}</Text>
                 <Text style={styles.listItems}>{item.notes || `NIL`}</Text>
             </View> 
         )

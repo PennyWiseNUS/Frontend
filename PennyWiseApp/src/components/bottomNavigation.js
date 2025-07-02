@@ -13,6 +13,8 @@ const BottomNavigation = ({navigation, currentTab}) => {
     const handleNavigation = (route) => {
         if (route === 'Home') {
             navigation.navigate('Home');
+        } else if (route === 'Notifications') {
+            navigation.navigate('Notifications');
         } else {
             console.log(`Temporary placeholder: Navigating to the ${route} page`);
         }
