@@ -32,7 +32,7 @@ npm install -g expo-cli
 ### Installation
 1. Navigate to project directory
 ```bash
-cd "your path"/Frontend/PennyWise
+cd "your path"/frontend/PennyWise
 ```
 
 2. Install dependencies
@@ -44,11 +44,6 @@ npm install react-native-chart-kit react-native-svg
 ```
 
 3. Start Expo Development Server
-``` bash
-npm install
-npm install expo-secure-store
-npm install jwt-decode
-npm install react-native-chart-kit react-native-svg
-```
+If on Expo Go, Press **s** to switch to development build.
 
 4. Open the andriod emulator and press **a** in the terminal to load the app.
