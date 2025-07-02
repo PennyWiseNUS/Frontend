@@ -136,8 +136,7 @@ const AddEntryScreen = ({ navigation }) => {
           onPress: () => { console.log('User pressed ok at AddEntryScreen');
           navigation.goBack(); }
         }],
-      );
-    } catch (err) {
+      ); // add changes     } catch (err) {
       console.error('Error when saving entry:', err);
       Alert.alert(`Error when saving entry, please try again.`)
     }
