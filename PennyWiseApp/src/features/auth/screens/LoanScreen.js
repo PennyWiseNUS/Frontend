@@ -13,21 +13,21 @@ const LoanScreen = ({navigation}) => {
     }, []);
     
     const currentLoans = loanList.filter(
-        loan => parseFloat(loan.amount) > loan.repaidAmount
+        loan => parseFloat(loan.totalRepaymentAmount) > loan.repaidAmount
     );
     const clearedLoans = loanList.filter(
-        loan => parseFloat(loan.amount) <= loan.repaidAmount
+        loan => parseFloat(loan.totalRepaymentAmount) <= loan.repaidAmount
     );
 
     const renderLoanItem = ({item}) => {
-        const {notes, amount, repaidAmount, repaymentDate, isRecurring, interestRate, nextReminderDate} = item;
-        const percentage = Math.min((repaidAmount/amount) * 100, 100).toFixed(1);
+        const {notes, amount, repaidAmount, totalRepaymentAmount, repaymentDate, isRecurring, interestRate, nextReminderDate} = item;
+        const percentage = Math.min((repaidAmount/totalRepaymentAmount) * 100, 100).toFixed(1);
         return (
             <View style={styles.loanItem}>
                 {/*Row 1 -- Loan Name and Loan Progress (X/Y)*/}
                 <View style={styles.row}>
                     <Text style={styles.loanName}>{notes}</Text>
-                    <Text style={styles.repaymentValue}>${repaidAmount} / ${amount}</Text>
+                    <Text style={styles.repaymentValue}>${Number(repaidAmount).toFixed(2)} / ${Number(totalRepaymentAmount).toFixed(2)}</Text>
                 </View>
 
                 {/*Row 2 -- Loan Progress Bar*/}
