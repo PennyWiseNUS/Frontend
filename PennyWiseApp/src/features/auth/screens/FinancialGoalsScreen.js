@@ -20,7 +20,8 @@ const FinancialGoalsScreen = ({navigation}) => {
     const [goalPopupVisible, setGoalPopupVisible] = useState(false);
     const [amountUpdate, setAmountUpdate] = useState(0);
     const [updateDate, setUpdateDate] = useState(new Date());
-    
+    const [suggestions, setSuggestions] = useState([]);
+    const [suggestionsMap, setSuggestionsMap] = useState({});
 
     const handleNewGoalButtonPressed = async () => {
         if (showUpdateForm) {
@@ -112,9 +113,26 @@ const FinancialGoalsScreen = ({navigation}) => {
         }
     }, [showUpdateForm]);
 
+
+    {/* remove auto fetching of suggestions logic -- shifting to separate page (on demand suggestions)
+    const goalsString = JSON.stringify(incompletedGoals)
+    useEffect(() => {
+        const getSuggestions = async () => {
+            const newSuggestions = {};
+            for (const goal of incompletedGoals) {
+                const suggestion = await getAISuggestions(goal);
+                newSuggestions[goal._id] = suggestion;
+            }
+            setSuggestionsMap(newSuggestions);
+        };
+        if (incompletedGoals.length > 0) { getSuggestions()}
+    }, [goalsString])
+    */}
+
     const renderGoalItem = ({item}) => {
         const {goalName, goalAmount, currentAmount, goalDeadline} = item;
         const percentage = Math.min((currentAmount/goalAmount) * 100, 100).toFixed(1);
+
         return (
             <View style={styles.goalItem}>
                 {/*Row 1 -- Goal Name and Goal Progress (X/Y)*/}
@@ -141,9 +159,44 @@ const FinancialGoalsScreen = ({navigation}) => {
                         <Text style={styles.progressPerc}>{percentage}%</Text>
                     </View>
                 </View>
+
+                {/* row 4: AI suggestions button*/}
+                <View style={{ flexDirection:'row', justifyContent:'flex-end'}}>
+                    <TouchableOpacity style={styles.suggestionsButton} onPress={() => navigation.navigate("Goal Suggestions", {goal: item})}>
+                        <Text>Generate Suggestions</Text>
+                    </TouchableOpacity>
+                </View>
+                
+                {/* Removing auto generating feature
+                <View style={styles.aiSuggestions}>
+                    <Text>{suggestionsMap[item._id]}</Text>
+                </View>
+                */}
             </View>
         )
     }
+    {/* shifting to generate button 
+    const getAISuggestions = async (goal) => {
+        try {
+            const entriesResult = await axios.get(`${server_base_URL}/api/entries`,
+                {headers: {Authorization: `Bearer ${token}`}}
+            );
+            // keep the most recent entries
+            const chosenEntries = entriesResult.data.slice(-20);
+            console.log(chosenEntries);
+            
+            // let suggestions backend handle the linking and querying, wait for the output
+            const suggestionResult = await axios.post(`${server_base_URL}/api/suggestions`,
+                { goal, entriesResult: entriesResult.data },
+                { headers: { Authorization: `Bearer ${token}`}}
+            );
+            return suggestionResult.data.suggestion;
+        } catch (err) {
+            console.error('Suggestion error:', err);
+            return "Suggestion could not be generated."
+        }
+    };
+    */}
 
     return (
         <>
@@ -216,7 +269,7 @@ const FinancialGoalsScreen = ({navigation}) => {
                                     <Text>
                                         {selectedGoalID 
                                             ? incompletedGoals.find(goal => goal._id === selectedGoalID)?.goalName
-                                            : "Choose a goal to repay"
+                                            : "Choose a goal to update"
                                         }
                                     </Text>
                                 </TouchableOpacity>
@@ -423,5 +476,11 @@ const styles = StyleSheet.create({
         fontWeight: '600', 
         padding:5, 
         marginTop: 10
+    },
+    suggestionsButton: {
+        backgroundColor: '#ff9933',
+        borderRadius: 10,
+        alignSelf: 'flex-start',
+        padding: 4
     },
 })
