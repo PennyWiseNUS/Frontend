@@ -30,7 +30,7 @@ const RegisterScreen = ({navigation}) => {
             <View style={styles.card}>
                 <View style={styles.inputRow}>
                     <Text style={styles.label}>Email:</Text>
-                    <TextInput style={styles.input} placeholder="Input your email" value={email} onChangeText={setEmail} keyboardType="email address" autoCapitalize="none"/>
+                    <TextInput style={styles.input} placeholder="Input your email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"/>
                 </View>
                 <View style={styles.inputRow}>
                     <Text style={styles.label}>Password:</Text>
