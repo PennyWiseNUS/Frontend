@@ -10,7 +10,7 @@
       "channel": "development"
     },
     "ios-simulator": {
-      "extneds": "development",
+      "extends": "development",
       "ios": {
         "simulator": true
       }
