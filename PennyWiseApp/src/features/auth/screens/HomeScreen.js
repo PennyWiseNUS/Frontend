@@ -65,7 +65,7 @@ const HomeScreen = ({navigation}) => {
         {title: 'Financial Portfolios', icon:'trending-up', color: '#F0C5EB'},
         {title: 'Loans', icon:'support-agent', color: '#C5D1F0'},
         {title: 'InfoPennyWise', icon:'info', color: '#D5F3EB'},
-        {title: 'More', icon:'pending', color: '#F5D9A1'},
+        {title: 'Emergency Funds', icon:'pending', color: '#F5D9A1'},
     ]
 
     const navigateToPage = (title) => {
