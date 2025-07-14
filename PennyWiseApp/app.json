@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "PennyWiseApp",
-    "slug": "PennyWiseApp",
+    "slug": "pennywise",
     "version": "1.0.0",
     "extra": {
       "eas": {
-        "projectId": "44b76368-85da-49d7-b052-678e59b2872a"
+        "projectId": "5314a3ea-9d44-4c1d-a8de-c13b5dd9063d"
       }
     },
     "orientation": "portrait",
@@ -15,9 +15,6 @@
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
     },
     "android": {
       "package": "com.PennyWiseNUS.PennyWiseApp",
@@ -34,12 +31,12 @@
       "expo-secure-store",
       "expo-font"
     ],
-    "owner": "woonkin14",
+    "owner": "pennywise.orbital",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/44b76368-85da-49d7-b052-678e59b2872a"
+      "url": "https://u.expo.dev/5314a3ea-9d44-4c1d-a8de-c13b5dd9063d"
     }
   }
 }
