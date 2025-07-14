@@ -106,7 +106,13 @@ const FinancialGoalsScreen = ({navigation}) => {
     const handleCloseUpdateForm = async () => {
         setShowUpdateForm(false);
     }
-
+    
+    // loading goals on mount
+    useEffect(() => {
+        getGoalList();
+    })
+    
+    // refreshing when update form  is shown
     useEffect(() => {
         if (showUpdateForm) {
             getGoalList();
