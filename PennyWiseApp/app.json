@@ -32,9 +32,7 @@
       "expo-font"
     ],
     "owner": "pennywise.orbital",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/5314a3ea-9d44-4c1d-a8de-c13b5dd9063d"
     }
