@@ -14,6 +14,7 @@ import FinancialGoalsScreen from '../features/auth/screens/FinancialGoalsScreen'
 import BottomNavigation from '../components/bottomNavigation';
 import GoalSuggestionScreen from '../features/auth/screens/GoalSuggestionScreen';
 import EmergencyFundsScreen from '../features/auth/screens/EmergencyFundsScreen';
+import StockMarketScreen from '../features/auth/screens/StockMarketScreen'
 
 // initialise a stack nav obj (for def and config stack based transitions)
 const Stack = createStackNavigator();
@@ -36,6 +37,7 @@ const AppNavigator = () => {
                 <Stack.Screen name="Financial Goals" component={FinancialGoalsScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Goal Suggestions" component={GoalSuggestionScreen}/>
                 <Stack.Screen name="Emergency Funds" component={EmergencyFundsScreen}/>
+                <Stack.Screen name="Markets" component={StockMarketScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     );

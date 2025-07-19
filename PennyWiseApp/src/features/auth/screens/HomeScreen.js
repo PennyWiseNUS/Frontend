@@ -62,7 +62,7 @@ const HomeScreen = ({navigation}) => {
         {title: 'Expenses', icon:'monetization-on', color: '#81C288'},
         {title: 'Financial Goals', icon:'star', color: '#AA81C2'},
         {title: 'Budget Forecasting', icon:'date-range', color: '#F2EEAC'},
-        {title: 'Financial Portfolios', icon:'trending-up', color: '#F0C5EB'},
+        {title: 'Markets', icon:'trending-up', color: '#F0C5EB'},
         {title: 'Loans', icon:'support-agent', color: '#C5D1F0'},
         {title: 'InfoPennyWise', icon:'info', color: '#D5F3EB'},
         {title: 'Emergency Funds', icon:'pending', color: '#F5D9A1'},
