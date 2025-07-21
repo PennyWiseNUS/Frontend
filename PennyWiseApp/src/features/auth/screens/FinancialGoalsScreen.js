@@ -235,20 +235,22 @@ const FinancialGoalsScreen = ({navigation}) => {
                             >
                                 <Text>{goalDeadline.toLocaleDateString()}</Text>
                             </TouchableOpacity>
-                            {showDatePicker && (
-                                <DateTimePicker
-                                    value={goalDeadline}
-                                    mode="date"
-                                    display="default"
-                                    onChange={(event, selectedDate) => {
-                                        setShowDatePicker(false);
-                                        if (selectedDate) {
-                                            setGoalDeadline(selectedDate);
-                                        }
-                                    }}
-                                />
-                            )}
                         </View>
+                        {showDatePicker && (
+                            <View style={{marginTop:10}}>
+                            <DateTimePicker
+                                value={goalDeadline}
+                                mode="date"
+                                display="default"
+                                onChange={(event, selectedDate) => {
+                                    setShowDatePicker(false);
+                                    if (selectedDate) {
+                                        setGoalDeadline(selectedDate);
+                                    }
+                                }}
+                            />
+                            </View>
+                        )}
                         <View style={styles.rowHolder}>
                             <TouchableOpacity style={styles.closeButton} onPress={handleCloseForm}>
                                 <Text style={styles.ButtonText}>Close</Text>
@@ -294,20 +296,23 @@ const FinancialGoalsScreen = ({navigation}) => {
                             >
                                 <Text>{updateDate.toLocaleDateString()}</Text>
                             </TouchableOpacity>
-                            {showDatePicker && (
-                                <DateTimePicker
-                                    value={updateDate}
-                                    mode="date"
-                                    display="default"
-                                    onChange={(event, selectedDate) => {
-                                        setShowDatePicker(false);
-                                        if (selectedDate) {
-                                            setUpdateDate(selectedDate);
-                                        }
-                                    }}
-                                />
-                            )}
                         </View>
+                        {showDatePicker && (
+                            <View style={{marginTop:10}}>
+                            <DateTimePicker
+                                value={updateDate}
+                                mode="date"
+                                display="default"
+                                onChange={(event, selectedDate) => {
+                                    setShowDatePicker(false);
+                                    if (selectedDate) {
+                                        setUpdateDate(selectedDate);
+                                    }
+                                }}
+                            />
+                            </View>
+                        )}
+                        
                         <View style={styles.rowHolder}>
                             <TouchableOpacity style={styles.closeButton} onPress={handleCloseUpdateForm}>
                                     <Text style={styles.ButtonText}>Close</Text>
