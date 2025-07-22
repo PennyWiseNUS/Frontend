@@ -95,6 +95,7 @@ const FinancialGoalsScreen = ({navigation}) => {
                 Goal Date Update: ${new Date(updateDate).toLocaleDateString()}`,
                 [{ text: 'OK',
                     onPress: () => { console.log('User pressed ok at add a new goal form');
+                    getGoalList(); // refreshing after updates are added
                     navigation.goBack(); }
                 }],
             )
@@ -110,14 +111,7 @@ const FinancialGoalsScreen = ({navigation}) => {
     // loading goals on mount
     useEffect(() => {
         getGoalList();
-    })
-    
-    // refreshing when update form  is shown
-    useEffect(() => {
-        if (showUpdateForm) {
-            getGoalList();
-        }
-    }, [showUpdateForm]);
+    }, []);
 
 
     {/* remove auto fetching of suggestions logic -- shifting to separate page (on demand suggestions)
