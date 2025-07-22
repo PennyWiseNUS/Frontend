@@ -1,7 +1,7 @@
 import Constants from'expo-constants';
 
 // storeClient is for deploying in expo go, check standAlone for APK
- isDeployment = Constants.executionEnvironment === "storeClient";
+isDeployment = Constants.executionEnvironment === "storeClient";
 // alias for the host machine
 // for deployment, change back
 export const server_base_URL = isDeployment
