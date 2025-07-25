@@ -17,6 +17,7 @@ import EmergencyFundsScreen from '../features/auth/screens/EmergencyFundsScreen'
 import StockMarketScreen from '../features/auth/screens/StockMarketScreen'
 import ForecastScreen from '../features/auth/screens/ForecastScreen';
 import InfoScreen from '../features/auth/screens/InfoScreen'; 
+import Profile from '../features/auth/screens/Profile';
 
 // initialise a stack nav obj (for def and config stack based transitions)
 const Stack = createStackNavigator();
@@ -42,6 +43,7 @@ const AppNavigator = () => {
                 <Stack.Screen name="Markets" component={StockMarketScreen}/>
                 <Stack.Screen name="Budget Forecasting" component={ForecastScreen}/>
                 <Stack.Screen name="InfoPennyWise" component={InfoScreen} options={{headerShown: false}}/>
+                <Stack.Screen name="Profile" component={Profile} options={{headerShown: false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     );
