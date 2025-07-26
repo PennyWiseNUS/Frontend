@@ -17,6 +17,7 @@ const BottomNavigation = ({navigation, currentTab}) => {
             navigation.navigate('Notifications');
         } else {
             console.log(`Temporary placeholder: Navigating to the ${route} page`);
+            navigation.navigate('Profile');
         }
     };
 

@@ -3,10 +3,12 @@ import { AuthContext } from "../../../context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { server_base_URL } from "../../../config";
 import axios from "axios";
+import BottomNavigation from '../../../components/bottomNavigation';
+
 import { TouchableOpacity, Text, View, FlatList, ActivityIndicator, TextInput, StyleSheet, Dimensions } from "react-native";
 //import {VictoryChart, VictoryLine, VictoryTheme} from 'victory-native'
 
-const StockMarketScreen = () => {
+const StockMarketScreen = ({navigation}) => {
     const {token} = useContext(AuthContext);
     const [userID, setUserID] = useState('');
 
@@ -113,7 +115,7 @@ const StockMarketScreen = () => {
     const renderCompany = ({item: company}) => {
         return (
             <View style={styles.stockList}>
-                <TouchableOpacity onPress={() => toggleExpand(company.ticker)}>
+                <TouchableOpacity>
                     <Text style={styles.stockText}>
                         {company.ticker} {company.name}
                     </Text>
@@ -178,6 +180,7 @@ const StockMarketScreen = () => {
 
             <Text style={styles.stockListName}>Favourites:</Text>
             <FlatList data={watchList} keyExtractor={(company) => company.ticker} renderItem={renderCompany}/>
+            <BottomNavigation navigation={navigation} activeTab="Home"/>
         </View>
     );
 }
