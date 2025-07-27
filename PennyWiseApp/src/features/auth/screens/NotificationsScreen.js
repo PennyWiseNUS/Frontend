@@ -37,9 +37,9 @@ const NotificationsScreen = ({navigation}) => {
 
     const markAsRead = async (id) => {
         try {
-          // await axios.put(`${server_base_URL}/api/notifications/${id}/read`, {}, {
-          //   headers: { Authorization: `Bearer ${token}` }
-          // });
+          await axios.put(`${server_base_URL}/api/notifications/${id}/read`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
           setNotifications(notifications.map(notification => 
             notification.id === id ? { ...notification, read: true } : notification
           ));
@@ -50,16 +50,39 @@ const NotificationsScreen = ({navigation}) => {
         }
       };
     
-    const deleteNotification = (id) => {
-        setNotifications(notifications.filter(notification => notification.id !== id));
+      const deleteNotification = async (id) => {
+        try {
+          await axios.delete(`${server_base_URL}/api/notifications/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setNotifications(notifications.filter(notification => notification.id !== id));
+        } catch (error) {
+          console.error('Error deleting notification:', error);
+          Alert.alert('Error', 'Failed to delete notification');
+        }
       };
+      
 
-    const clearAllNotifications = () => {
+      const clearAllNotifications = () => {
         Alert.alert('Clear All Notifications', 'Are you sure you want to clear all notifications?', [
           { text: 'Cancel' },
-          { text: 'Clear', onPress: () => setNotifications([]) }
+          {
+            text: 'Clear',
+            onPress: async () => {
+              try {
+                await axios.delete(`${server_base_URL}/api/notifications`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                setNotifications([]);
+              } catch (error) {
+                console.error('Error clearing notifications:', error);
+                Alert.alert('Error', 'Failed to clear notifications');
+              }
+            }
+          }
         ]);
       };
+      
     
     const renderItem = ({ item }) => (
         <View style={[styles.notificationCard, item.read ? styles.read : styles.unread]}>

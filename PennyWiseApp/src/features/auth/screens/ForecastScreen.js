@@ -113,7 +113,7 @@ const ForecastScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Forecast for Next Month</Text>
+      <Text style={styles.header}>Forecast for This Month</Text>
       {Object.keys(forecastedBudget).length === 0 && <Text>Loading forecast...</Text>}
       <View style={[styles.row, styles.headingRow]}>
           <Text style={[styles.cell, styles.headingText]}>Category</Text>
