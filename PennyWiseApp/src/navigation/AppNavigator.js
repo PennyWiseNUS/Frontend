@@ -33,17 +33,17 @@ const AppNavigator = () => {
                 <Stack.Screen name="Register" component={RegisterScreen}/>
                 <Stack.Screen name="Home" component={HomeScreen} options={{headerShown: false}}/>
                 <Stack.Screen name="Add an Entry" component={AddEntryScreen}/>
-                <Stack.Screen name="Income and Savings" component={IncomeSavingsScreen} options={{headerShown: false}}/>
+                <Stack.Screen name="Income and Savings" component={IncomeSavingsScreen}/>
                 <Stack.Screen name="Expenses" component={ExpensesScreen} />
                 <Stack.Screen name="Loans" component={LoanScreen}/>
                 <Stack.Screen name="Notifications" component={NotificationsScreen}/>
-                <Stack.Screen name="Financial Goals" component={FinancialGoalsScreen} options={{headerShown: false}}/>
+                <Stack.Screen name="Financial Goals" component={FinancialGoalsScreen}/>
                 <Stack.Screen name="Goal Suggestions" component={GoalSuggestionScreen}/>
                 <Stack.Screen name="Emergency Funds" component={EmergencyFundsScreen}/>
                 <Stack.Screen name="Markets" component={StockMarketScreen}/>
                 <Stack.Screen name="Budget Forecasting" component={ForecastScreen}/>
-                <Stack.Screen name="InfoPennyWise" component={InfoScreen} options={{headerShown: false}}/>
-                <Stack.Screen name="Profile" component={Profile} options={{headerShown: false}}/>
+                <Stack.Screen name="InfoPennyWise" component={InfoScreen} />
+                <Stack.Screen name="Profile" component={Profile} />
             </Stack.Navigator>
         </NavigationContainer>
     );
